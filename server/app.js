@@ -5,6 +5,8 @@ var logger = require("morgan");
 var bodyParser = require("body-parser");
 
 var indexRouter = require("./routes/index");
+var DBInitializer = require("./middleware/dbInitializer");
+
 var debug = require("debug")("server:server");
 var http = require("http");
 
@@ -23,6 +25,10 @@ app.use("/", indexRouter);
 var port = normalizePort(process.env.PORT || "3001");
 app.set("port", port);
 
+/**
+ * Initialize DB Connection
+ */
+new DBInitializer().init();
 /**
  * Create HTTP server.
  */

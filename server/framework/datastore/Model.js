@@ -1,4 +1,7 @@
 module.exports = class Model {
-  //sessionId = null;
-  //businessDate = null;
+  createdDate;
+  createdBy;
+  updatedDate;
+  updatedBy;
+  deleted;
 };
