@@ -7,20 +7,32 @@ var bodyParser = require("body-parser");
 var indexRouter = require("./routes/index");
 var timeSheetRouter = require("./routes/timeSheet");
 var DBInitializer = require("./middleware/dbInitializer");
-
+var contextBuilder = require("./middleware/contextBuilder");
 var debug = require("debug")("server:server");
 var http = require("http");
+var httpContext = require("express-http-context");
 
 var app = express();
 
+//Framework middlewares
 app.use(logger("dev"));
 app.use(bodyParser.json());
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
+/*
+    Sevice related middlewares
+*/
+//context sharing
+app.use(httpContext.middleware);
+app.use(contextBuilder);
+
+//initialize database [ done on app start.]
+new DBInitializer().init();
+
+//Services routes - Log only high level routes, while individual routes handle next level routing
 app.use("/", indexRouter);
 app.use("/timesheet", timeSheetRouter);
 
@@ -28,9 +40,9 @@ var port = normalizePort(process.env.PORT || "3001");
 app.set("port", port);
 
 /**
- * Initialize DB Connection
+ * Enable context sharing for all components
  */
-new DBInitializer().init();
+
 /**
  * Create HTTP server.
  */

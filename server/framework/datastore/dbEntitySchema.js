@@ -9,6 +9,7 @@ module.exports = class DBEntitySchema {
       },
       createdBy: {
         type: "varchar",
+        default: null,
       },
       updatedDate: {
         type: "datetime",
@@ -16,6 +17,7 @@ module.exports = class DBEntitySchema {
       },
       updatedBy: {
         type: "varchar",
+        default: null,
       },
       deleted: {
         type: "bool",
