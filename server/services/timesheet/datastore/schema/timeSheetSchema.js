@@ -1,9 +1,9 @@
 const DBEntitySchema = require("../../../../framework/datastore/dbEntitySchema");
-const Timesheet = require("../../model/timeSheet");
+const TimeSheetModel = require("../../model/timeSheetModel");
 
 module.exports = new DBEntitySchema({
   name: "TimeSheet",
-  target: TimeSheet,
+  target: TimeSheetModel,
   tableName: "TimeSheet",
   columns: {
     timeSheetId: {

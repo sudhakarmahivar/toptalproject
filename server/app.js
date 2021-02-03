@@ -5,6 +5,7 @@ var logger = require("morgan");
 var bodyParser = require("body-parser");
 
 var indexRouter = require("./routes/index");
+var timeSheetRouter = require("./routes/timeSheet");
 var DBInitializer = require("./middleware/dbInitializer");
 
 var debug = require("debug")("server:server");
@@ -21,6 +22,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
+app.use("/timesheet", timeSheetRouter);
 
 var port = normalizePort(process.env.PORT || "3001");
 app.set("port", port);

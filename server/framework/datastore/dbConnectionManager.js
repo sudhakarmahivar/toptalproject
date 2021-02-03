@@ -15,7 +15,7 @@ module.exports = class DBConnectionManager {
       entities: this.entities,
     });
   }
-  getRepository(entity) {
+  static getRepository(entity) {
     return typeorm.getConnection().getRepository(entity);
   }
 };

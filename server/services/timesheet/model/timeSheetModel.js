@@ -1,6 +1,7 @@
+const moment = require("moment");
 const Model = require("../../../framework/datastore/Model");
 
-module.exports = class Timesheet extends (
+module.exports = class TimeSheetModel extends (
   Model
 ) {
   timeSheetId;
