@@ -1,15 +1,23 @@
 const { logger, UserContext, utils, errorMessages } = require("../../framework/framework");
 const { getRepository } = require("../../framework/datastore/dbConnectionManager");
 const TimeSheetModel = require("./model/timeSheetModel");
-const roles = require("../user/roles");
+const { Between } = require("typeorm");
+const roles = require("../common/roles");
 const ValidationError = require("../../framework/errors/validationError");
 const errorCodes = require("../../framework/errors/errorCodes");
-const AuthenticationError = require("../../framework/errors/authenticationError");
+const AuthorizationError = require("../../framework/errors/authorizationError");
 const ResourceNotFoundError = require("../../framework/errors/ResourceNotFoundError");
 class TimeSheetService {
   repository = null;
   userContext = null;
 
+  constructor(repository, userContext) {
+    this.repository = repository || getRepository(TimeSheetModel);
+    this.userContext = userContext || UserContext.get();
+  }
+  //
+  // Helper Methods
+  //
   validateModel(timeSheet) {
     if (!timeSheet.date || !utils.isValidPastDate(timeSheet.date)) {
       //not a valid date
@@ -36,16 +44,33 @@ class TimeSheetService {
       throw new ValidationError(errorMessages.TotalDayHoursExceedLimit);
     }
   }
-
-  constructor(repository, userContext) {
-    this.repository = repository || getRepository(TimeSheetModel);
-    this.userContext = userContext || UserContext.get();
-  }
   //Get active timesheets based on time sheet attributes
   async getTimesheets(timeSheetModel) {
+    //if query string passed use the same, else get alltimesheets for the user Id sent
     let timeSheets = await this.repository.find({ deleted: false, ...timeSheetModel });
     return timeSheets;
   }
+
+  //
+  // Service End Points
+  //
+  async search(timeSheetSearchModel) {
+    //create where clause with passed search parameters
+    const { fromDate, toDate, userId } = timeSheetSearchModel;
+    const whereClause = {};
+    if (fromDate && toDate) {
+      whereClause.date = Between(fromDate, toDate);
+    }
+    //If admin allow him/her to query other users
+    if (userId && this.userContext.role === roles.admin) {
+      whereClause.userId = userId;
+    }
+    //if user not set, set it to logged in user
+    if (!whereClause.userId) whereClause.userId = this.userContext.userId;
+    whereClause.deleted = false;
+    return await this.repository.find(whereClause);
+  }
+
   async create(timeSheetModel) {
     //TODO: DTO Validations and other rules
     const { userId, role } = this.userContext;
@@ -75,8 +100,8 @@ class TimeSheetService {
     }
 
     const dbTimeSheet = dbTimeSheets[0];
-    if (dbTimeSheet.userId !== timeSheetModel.userId && role !== roles.admin) {
-      throw new AuthenticationError("You are not authorized for the timesheet");
+    if (dbTimeSheet.userId !== userId && role !== roles.admin) {
+      throw new AuthorizationError(errorMessages.unauthorizedForTimeSheet);
     }
 
     timeSheetModel.userId = dbTimeSheet.userId;
@@ -86,6 +111,22 @@ class TimeSheetService {
     timeSheetModel = await this.repository.save(timeSheetModel);
     //console.log(timeSheets);
     return timeSheetModel;
+  }
+  async delete(timeSheetId) {
+    const { role, userId } = this.userContext;
+    //validate if timesheet already exists
+    var dbTimeSheets = await this.getTimesheets({ timeSheetId });
+    if (dbTimeSheets.length === 0) {
+      //no matching time sheet
+      throw new ResourceNotFoundError("Timesheet not found");
+    }
+    let dbTimeSheet = dbTimeSheets[0];
+    if (dbTimeSheet.userId !== userId && role !== roles.admin) {
+      throw new AuthorizationError(errorMessages.unauthorizedForTimeSheet);
+    }
+    dbTimeSheet.deleted = true;
+    dbTimeSheet = await this.repository.save(dbTimeSheet);
+    return dbTimeSheet;
   }
 }
 module.exports = TimeSheetService;

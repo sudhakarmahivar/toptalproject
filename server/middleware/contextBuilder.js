@@ -7,9 +7,11 @@ module.exports = function (req, res, next) {
   if (!req.headers.accesstoken) {
     throw new AuthenticationError();
   }
+  const userId = (req.headers || {}).accesstoken;
+
   httpContext.set("userContext", {
-    userId: (req.headers || {}).accesstoken,
-    role: "u",
+    userId: Number(userId.replace(/\D/g, "")),
+    role: userId[0],
   });
   next && next();
 };

@@ -2,7 +2,8 @@
  * Base class for all service error
  */
 module.exports = {
-  validationError: "VALERR",
-  authenticationError: "AUTHERR",
-  resourceNotFoundError: "RESNOTFOUNDERR",
+  validationError: "VALERROR",
+  authenticationError: "AUTHERROR",
+  authorizationError: "AUTHORIZATIONERROR",
+  resourceNotFoundError: "RESNOTFOUNDERROR",
 };

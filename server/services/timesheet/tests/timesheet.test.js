@@ -1,6 +1,6 @@
 const errorCodes = require("../../../framework/errors/errorCodes");
 const { errorMessages } = require("../../../framework/framework");
-const roles = require("../../user/roles");
+const roles = require("../../common/roles");
 var TimeSheetService = require("../timeSheetService");
 
 //Create mock repo
@@ -150,11 +150,21 @@ describe("Create timeSheet tests", () => {
 });
 describe("Update timeSheet tests", () => {
   test("update timesheet throws auth error when updating different user record  ( as a non-admin)", async () => {
-    await runServiceUpdateTest(
-      roles.user,
-      { timeSheetId: 1, date: null, userId: 99999 },
-      errorCodes.authenticationError
-    );
+    let mockRepository = {
+      find: jest.fn((params) => {
+        return [{ timeSheetId: 1, userId: 100 }];
+      }),
+    };
+    const service = new TimeSheetService(mockRepository, getMockUserContext(roles.user));
+    try {
+      const result = await service.update({
+        timeSheetId: 1,
+        hours: 20,
+        date: "2020-01-01",
+      });
+    } catch (err) {
+      expect(err.errorCode).toEqual(errorCodes.authorizationError);
+    }
   });
   test("as admin, allow update of others timesheets", async () => {
     await runServiceUpdateTest(roles.admin, { timeSheetId: 1, userId: mockUserId }); //should succeed
@@ -181,5 +191,48 @@ describe("Update timeSheet tests", () => {
     } catch (err) {
       expect(err.errorCode).toEqual(errorCodes.resourceNotFoundError);
     }
+  });
+  describe("Delete timeSheet tests", () => {
+    test("should soft delete timesheet record", async () => {
+      let mockRepository = {
+        find: jest.fn((params) => {
+          return [{ timeSheetId: 1, userId: mockUserId, deleted: false }];
+        }),
+        save: jest.fn((params) => params),
+      };
+      const service = new TimeSheetService(mockRepository, getMockUserContext(roles.user));
+
+      const result = await service.delete(1);
+      expect(result).not.toBeNull();
+      expect(result.deleted).toBe(true);
+    });
+    test("should handle non existant timesheet", async () => {
+      let mockRepository = {
+        find: jest.fn((params) => {
+          return [{ timeSheetId: 1, userId: mockUserId, deleted: false }];
+        }),
+        save: jest.fn((params) => params),
+      };
+      const service = new TimeSheetService(mockRepository, getMockUserContext(roles.user));
+      try {
+        const result = await service.delete(9990);
+      } catch (err) {
+        expect(err.errorCode).toEqual(errorCodes.resourceNotFoundError);
+      }
+    });
+    test("should handle authorization during delete", async () => {
+      let mockRepository = {
+        find: jest.fn((params) => {
+          return [{ timeSheetId: 1, userId: 9876, deleted: false }];
+        }),
+        save: jest.fn((params) => params),
+      };
+      const service = new TimeSheetService(mockRepository, getMockUserContext(roles.user));
+      try {
+        const result = await service.delete(1);
+      } catch (err) {
+        expect(err.errorCode).toEqual(errorCodes.authorizationError);
+      }
+    });
   });
 });

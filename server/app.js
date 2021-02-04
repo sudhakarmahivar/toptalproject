@@ -6,6 +6,7 @@ var bodyParser = require("body-parser");
 
 var indexRouter = require("./routes/index");
 var timeSheetRouter = require("./routes/timeSheet");
+var userRouter = require("./routes/user");
 var DBInitializer = require("./middleware/dbInitializer");
 var contextBuilder = require("./middleware/contextBuilder");
 var serviceErrorHandler = require("./middleware/serviceErrorHandler");
@@ -36,6 +37,7 @@ new DBInitializer().init();
 //Services routes - Log only high level routes, while individual routes handle next level routing
 app.use("/", indexRouter);
 app.use("/timesheet", timeSheetRouter);
+app.use("/user", userRouter);
 
 app.use(serviceErrorHandler);
 
