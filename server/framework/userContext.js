@@ -7,7 +7,7 @@ var httpContext = require("express-http-context");
 
 class UserContext {
   static get() {
-    return httpContext.get("userContext");
+    return httpContext.get("userContext") || {}; //empty object when not set ( as in test runs)
   }
 }
 module.exports = UserContext;

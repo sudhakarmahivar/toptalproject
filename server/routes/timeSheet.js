@@ -8,17 +8,33 @@ const TimeSheetService = require("../services/timeSheet/timeSheetService");
  * Timesheet CRUD routes
  */
 router.get("/", async function (req, res, next) {
-  let result = await new TimesheetService().getTimesheets(req.body);
-  res.status(200).json(result);
-  next();
+  try {
+    let result = await new TimesheetService().getTimesheets(req.body);
+    res.status(200).json(result);
+    next && next();
+  } catch (err) {
+    next(err);
+  }
 });
 
 router.post("/", async function (req, res, next) {
-  logger.debug(req.body);
-  let service = new TimeSheetService();
-  let result = await service.addTimeSheet(req.body);
-  res.status(200).json(result);
-  next();
+  try {
+    let service = new TimeSheetService();
+    let result = await service.create(req.body);
+    res.status(200).json(result);
+    next && next();
+  } catch (err) {
+    next(err);
+  }
 });
-
+router.put("/", async function (req, res, next) {
+  try {
+    let service = new TimeSheetService();
+    let result = await service.update(req.body);
+    res.status(200).json(result);
+    next && next();
+  } catch (err) {
+    next(err);
+  }
+});
 module.exports = router;

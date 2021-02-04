@@ -8,6 +8,7 @@ var indexRouter = require("./routes/index");
 var timeSheetRouter = require("./routes/timeSheet");
 var DBInitializer = require("./middleware/dbInitializer");
 var contextBuilder = require("./middleware/contextBuilder");
+var serviceErrorHandler = require("./middleware/serviceErrorHandler");
 var debug = require("debug")("server:server");
 var http = require("http");
 var httpContext = require("express-http-context");
@@ -36,12 +37,10 @@ new DBInitializer().init();
 app.use("/", indexRouter);
 app.use("/timesheet", timeSheetRouter);
 
+app.use(serviceErrorHandler);
+
 var port = normalizePort(process.env.PORT || "3001");
 app.set("port", port);
-
-/**
- * Enable context sharing for all components
- */
 
 /**
  * Create HTTP server.
