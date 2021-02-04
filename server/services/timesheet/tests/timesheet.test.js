@@ -15,11 +15,24 @@ let mockRepository = {
   }),
   save: jest.fn((model) => ({ ...model, timeSheetId: Math.floor(Math.random() * 10000 + 1) })),
 };
-let mockUserId = 66678;
-let getMockUserContext = (role) => ({
-  userId: mockUserId,
-  role,
-});
+let mockUserId = 12345,
+  mockAdminId = 98765,
+  mockManagerId = 56789;
+let mockUsers = [
+  {
+    userId: mockUserId,
+    role: roles.user,
+  },
+  {
+    userId: mockManagerId,
+    role: roles.manager,
+  },
+  {
+    userId: mockAdminId,
+    role: roles.admin,
+  },
+];
+let getMockUserContext = (role) => mockUsers.find((m) => m.role === role);
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -39,6 +52,7 @@ describe("timesheet - getTimeSheets", () => {
     expect(result[0]).toEqual(mockTimeSheets[0]);
   });
 });
+
 var runServiceTest = async (method, role, modelPatch, expectedErrorCode, expectedErrorMessage) => {
   const service = new TimeSheetService(mockRepository, getMockUserContext(role));
   try {
@@ -51,7 +65,7 @@ var runServiceTest = async (method, role, modelPatch, expectedErrorCode, expecte
     if (!expectedErrorCode) return result; //no expected error code. If we're here then we succeeded
   } catch (err) {
     expect(err.errorCode).toEqual(expectedErrorCode);
-    expect(err.error).toEqual(expectedErrorMessage);
+    if (expectedErrorMessage) expect(err.error).toEqual(expectedErrorMessage);
   }
 };
 var runServiceCreateTest = async (role, modelPatch, expectedErrorCode, expectedErrorMessage) => {
@@ -113,8 +127,8 @@ describe("Create timeSheet tests", () => {
   test("create timesheet, saves against logged in userId for users, manager roles, ignoring user ids even if sent in request", async () => {
     let result = await runServiceCreateTest(roles.user, { userId: "some-other-user" }); //override with usercontext
     expect(result.userId).toEqual(mockUserId);
-    result = await runServiceCreateTest(roles.manager, { userId: "some-other-user" });
-    expect(result.userId).toEqual(mockUserId);
+    result = await runServiceCreateTest(roles.manager, { userId: "some-other-user-y" });
+    expect(result.userId).toEqual(mockManagerId);
   });
   test("create timesheet, for admin role, allows saving against other userIds", async () => {
     const result = await runServiceCreateTest(roles.admin, { userId: "some-other-user" });
@@ -135,14 +149,37 @@ describe("Create timeSheet tests", () => {
   });
 });
 describe("Update timeSheet tests", () => {
-  /*test("update timesheet fails with invalid date value/date in future", async () => {
-    await runServiceUpdateTest(roles.user, { date: null }, errorCodes.validationError, errorMessages.validDateRequired);
+  test("update timesheet throws auth error when updating different user record  ( as a non-admin)", async () => {
     await runServiceUpdateTest(
       roles.user,
-      { date: "2050-01-01" },
-      errorCodes.validationError,
-      errorMessages.validDateRequired
+      { timeSheetId: 1, date: null, userId: 99999 },
+      errorCodes.authenticationError
     );
-    await runServiceCreateTest(roles.user, { date: "2020-01-01" }); //should succeed
-  });*/
+  });
+  test("as admin, allow update of others timesheets", async () => {
+    await runServiceUpdateTest(roles.admin, { timeSheetId: 1, userId: mockUserId }); //should succeed
+  });
+  test("on update, ensure day total doesnt exceed 24 hours", async () => {
+    await runServiceUpdateTest(
+      roles.user,
+      { timeSheetId: 1, hours: 23.1, userId: mockUserId },
+      errorCodes.validationError
+    ); //should throw error
+  });
+  test("should fail if timesheet doesnt exist", async () => {
+    let mockRepository = {
+      find: jest.fn((params) => {
+        return [];
+      }),
+    };
+    const service = new TimeSheetService(mockRepository, getMockUserContext(roles.user));
+    try {
+      const result = await service.update({
+        timeSheetId: 1234,
+        hours: 20,
+      });
+    } catch (err) {
+      expect(err.errorCode).toEqual(errorCodes.resourceNotFoundError);
+    }
+  });
 });

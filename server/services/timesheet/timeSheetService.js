@@ -29,7 +29,7 @@ class TimeSheetService {
     const dayTimeSheets = await this.getTimesheets({ date: timeSheetModel.date, userId: timeSheetModel.userId });
     //get total of other rows
     //In case of update, exclude current row being updated
-    let total = dayTimeSheets.reduce((v, ts) => (ts.timeSheetId === timeSheetModel.timeSheetId ? 0 : v + ts.hours), 0);
+    let total = dayTimeSheets.reduce((v, ts) => (ts.timeSheetId === timeSheetModel.timeSheetId ? v : v + ts.hours), 0);
     total += timeSheetModel.hours;
 
     if (total > 24) {
@@ -47,7 +47,6 @@ class TimeSheetService {
     return timeSheets;
   }
   async create(timeSheetModel) {
-    console.log(timeSheetModel);
     //TODO: DTO Validations and other rules
     const { userId, role } = this.userContext;
     //if admin and userId sent, use the same. In all other cases overwrite with logged in user
@@ -67,10 +66,9 @@ class TimeSheetService {
   }
 
   async update(timeSheetModel) {
-    //TODO: DTO Validations and other rules
     const { role, userId } = this.userContext;
     //validate if timesheet already exists
-    var dbTimeSheets = this.getTimesheets({ timeSheetId: timeSheetModel.timeSheetId });
+    var dbTimeSheets = await this.getTimesheets({ timeSheetId: timeSheetModel.timeSheetId });
     if (dbTimeSheets.length === 0) {
       //no matching time sheet
       throw new ResourceNotFoundError("Timesheet not found");
@@ -83,6 +81,8 @@ class TimeSheetService {
 
     timeSheetModel.userId = dbTimeSheet.userId;
     timeSheetModel.updatedBy = userId;
+    this.validateModel(timeSheetModel);
+    await this.validateDayTotal(timeSheetModel);
     timeSheetModel = await this.repository.save(timeSheetModel);
     //console.log(timeSheets);
     return timeSheetModel;
