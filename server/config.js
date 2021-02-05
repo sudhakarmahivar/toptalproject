@@ -9,4 +9,5 @@ module.exports = {
     synchronize: true,
     logging: false,
   },
+  authSecret: "some-secret-ideally-in-env-variable-or-in-file",
 };

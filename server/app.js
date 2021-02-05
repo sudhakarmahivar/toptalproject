@@ -7,6 +7,7 @@ var bodyParser = require("body-parser");
 var indexRouter = require("./routes/index");
 var timeSheetRouter = require("./routes/timeSheet");
 var userRouter = require("./routes/user");
+var authRouter = require("./routes/auth");
 var DBInitializer = require("./middleware/dbInitializer");
 var contextBuilder = require("./middleware/contextBuilder");
 var serviceErrorHandler = require("./middleware/serviceErrorHandler");
@@ -29,15 +30,16 @@ app.use(express.static(path.join(__dirname, "public")));
 */
 //context sharing
 app.use(httpContext.middleware);
-app.use(contextBuilder);
+//app.use(contextBuilder);
 
 //initialize database [ done on app start.]
 new DBInitializer().init();
 
 //Services routes - Log only high level routes, while individual routes handle next level routing
 app.use("/", indexRouter);
-app.use("/timesheet", timeSheetRouter);
-app.use("/user", userRouter);
+app.use("/timesheet", contextBuilder, timeSheetRouter);
+app.use("/user", contextBuilder, userRouter);
+app.use("/auth", authRouter);
 
 app.use(serviceErrorHandler);
 
