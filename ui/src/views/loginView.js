@@ -1,8 +1,9 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Button, Link } from "@material-ui/core";
+import { Button } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 import { authenticate } from "../controllers/loginController";
+import { Link } from "react-router-dom";
 class LoginView extends React.Component {
   constructor(props) {
     super(props);
@@ -61,9 +62,8 @@ class LoginView extends React.Component {
           <Button variant="contained" color="primary" onClick={this.onSubmit}>
             Login
           </Button>
-          <Link href="#" onClick={() => {}} color="primary">
-            New User
-          </Link>
+
+          <Link to="/registration">New User</Link>
         </form>
       </div>
     );

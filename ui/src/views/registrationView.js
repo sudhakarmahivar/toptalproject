@@ -65,12 +65,9 @@ class RegistrationView extends React.Component {
           </div>
 
           <Button variant="contained" color="primary" onClick={this.onSubmit}>
-            Login
+            Submit
           </Button>
           <div>{error}</div>
-          <Link href="#" onClick={() => {}} color="primary">
-            New User
-          </Link>
         </form>
       </div>
     );
