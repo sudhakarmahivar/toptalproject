@@ -43,7 +43,7 @@ app.use("/auth", authRouter);
 
 app.use(serviceErrorHandler);
 
-var port = normalizePort(process.env.PORT || "3001");
+var port = normalizePort(process.env.PORT || "6002");
 app.set("port", port);
 
 /**
@@ -115,5 +115,4 @@ function onListening() {
   var bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
   debug("Listening on " + bind);
 }
-
 module.exports = app;

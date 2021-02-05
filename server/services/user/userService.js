@@ -143,7 +143,8 @@ class UserService {
     var accessToken = jwt.sign({ userId: dbUser.userId, role: dbUser.role }, config.authSecret, {
       expiresIn: 86400, // expires in 24 hours
     });
-    return { accessToken, expiresIn: 86400 };
+    delete dbUser.password;
+    return { ...dbUser, accessToken, expiresIn: 86400 };
   }
 }
 module.exports = UserService;
