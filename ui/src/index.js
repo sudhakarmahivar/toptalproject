@@ -3,17 +3,16 @@ import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import { composeWithDevTools } from "redux-devtools-extension";
+import "primereact/resources/themes/saga-blue/theme.css";
+import "primereact/resources/primereact.min.css";
+import "primeicons/primeicons.css";
 
 //import * as serviceWorker from "./serviceWorker";
 //import "fontsource-roboto"; //required for material-ui
 
 import { Provider } from "react-redux";
-import rootReducer from "./rootReducer";
-import thunk from "redux-thunk";
-import { createStore, applyMiddleware } from "redux";
 
-const store = createStore(rootReducer, composeWithDevTools(applyMiddleware(thunk)));
+import store from "./store";
 
 ReactDOM.render(
   <React.StrictMode>

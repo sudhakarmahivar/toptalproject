@@ -133,6 +133,14 @@ class UserService {
       return user;
     } else throw new AuthorizationError();
   }
+  async getAll() {
+    let users = await this.repository.find({ deleted: false });
+    users.forEach((user) => {
+      delete user.password;
+    });
+    return users;
+  }
+
   async login(loginModel) {
     const { userName, password } = loginModel;
     if (!userName || !password) return new AuthenticationError();

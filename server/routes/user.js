@@ -16,7 +16,15 @@ router.get("/:userId", async function (req, res, next) {
     next(err);
   }
 });
-
+router.get("/", async function (req, res, next) {
+  try {
+    let result = await new UserService().getAll();
+    res.status(200).json(result);
+    next && next();
+  } catch (err) {
+    next(err);
+  }
+});
 router.post("/", async function (req, res, next) {
   try {
     let service = new UserService();
