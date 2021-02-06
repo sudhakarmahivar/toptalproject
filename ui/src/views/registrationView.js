@@ -73,7 +73,7 @@ class RegistrationView extends React.Component {
   onSubmit = (event) => {
     event.preventDefault();
     const { user, editMode, password2 } = this.state;
-    const { clearError, registerUser, saveUser } = this.props;
+    const { clearError, registerUser, saveUser, onSuccess } = this.props;
     //clear service and client errors
     clearError();
     this.setState({
@@ -103,14 +103,14 @@ class RegistrationView extends React.Component {
       });
       return;
     }
-    if (editMode) saveUser(user);
-    else registerUser(user);
+    if (editMode) saveUser(user, onSuccess);
+    else registerUser(user, onSuccess);
   };
 
   render() {
     const { user, formErrors, password2, editMode, userNameError, passwordError } = this.state;
     let { allowRoleEdit } = this.props;
-
+    console.log(allowRoleEdit, " role didt");
     return (
       <div className="registrationView">
         <form className="registrationForm" noValidate autoComplete="off" onSubmit={this.onSubmit}>
@@ -181,10 +181,7 @@ class RegistrationView extends React.Component {
     );
   }
 }
-const mapStateToProps = (state, ownProps) => ({
-  errorMessage: state.error.message,
-  redirectTo: state.registration.redirectTo,
-});
+const mapStateToProps = (state, ownProps) => ({});
 
 const mapDispatchToProps = {
   registerUser,

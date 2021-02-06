@@ -3,10 +3,7 @@ import actionTypes from "../actionTypes";
 const initialState = {
   //when edit user session is on
   open: false, //only for dialog view
-  userId: null,
-  user: {
-    //user object being edited
-  },
+  user: null,
   successMessage: null,
   errorMessage: null,
 };
@@ -16,14 +13,14 @@ function editUserReducer(state = initialState, action = {}) {
     return {
       ...state,
       // and update the copy with the new value
-      userId: action.data,
+      user: action.data,
       open: true,
     };
   }
   if (action.type === actionTypes.auth.registrationSucceeded || action.type === actionTypes.editUser.end) {
     return {
       ...state,
-      userId: null,
+      user: null,
       open: false,
     };
   }

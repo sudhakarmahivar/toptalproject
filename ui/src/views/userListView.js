@@ -3,13 +3,16 @@ import { connect } from "react-redux";
 import { AgGridReact, SortableHeaderComponent } from "ag-grid-react";
 import "ag-grid-community/dist/styles/ag-grid.css";
 import "ag-grid-community/dist/styles/ag-theme-alpine.css";
-import { getUsers, openEditUserDialog, deleteUser } from "../controllers/userController";
+import { getUsers, deleteUser } from "../controllers/userController";
 
 import IconButton from "@material-ui/core/IconButton";
+import Button from "@material-ui/core/Button";
 import EditIcon from "@material-ui/icons/Edit";
 import DeleteIcon from "@material-ui/icons/Delete";
-import EditUserDialogView from "./EditUserDialogView";
 import ConfirmationDialogView from "./ConfirmationDialogView";
+//import RegistrationDialogView from "./RegistrationDialogView";
+import WithDialogView from "./WithDialogView";
+import RegistrationView from "./registrationView";
 /**
  * Displays all users
  */
@@ -20,6 +23,9 @@ export class UserListView extends React.Component {
     super(props);
     this.state = {
       editDialogOpen: false,
+      editUser: null,
+
+      //on delete
       deleteConfirmationOpen: false,
       confirmationMessage: null,
     };
@@ -46,12 +52,15 @@ export class UserListView extends React.Component {
     });
   }
   EditLinkRenderer(props) {
-    const { userId } = props.value.rowData;
+    const user = props.value.rowData;
     return (
       <IconButton
         aria-label="edit"
         onClick={() => {
-          this.props.openEditUserDialog(userId);
+          this.setState({
+            editDialogOpen: true,
+            editUser: user,
+          });
         }}
       >
         <EditIcon fontSize="small" />
@@ -94,17 +103,33 @@ export class UserListView extends React.Component {
       </IconButton>
     );
   }
+  onCreateUser = () => {
+    this.setState({
+      editDialogOpen: true,
+      editUser: null,
+    });
+  };
   componentDidMount() {
     const { getUsers } = this.props;
     getUsers();
   }
+  closeDialog = () => {
+    this.setState({
+      editDialogOpen: false,
+      editUser: null,
+    });
+  };
 
   render() {
     const users = this.props.userList.users;
     const { confirmationMessage, deleteConfirmationOpen } = this.state;
+    const { editDialogOpen, editUser } = this.state;
     if (!users || users.length === 0) return null;
     return (
       <div className="userListView">
+        <Button variant="contained" color="primary" onClick={this.onCreateUser}>
+          New User
+        </Button>
         <div
           className="ag-theme-alpine"
           style={{
@@ -132,7 +157,9 @@ export class UserListView extends React.Component {
             }}
           ></AgGridReact>
         </div>
-        <EditUserDialogView />
+        <WithDialogView open={editDialogOpen} onClose={this.closeDialog}>
+          <RegistrationView user={editUser} allowRoleEdit onSuccess={this.closeDialog} />
+        </WithDialogView>
         <ConfirmationDialogView
           open={deleteConfirmationOpen}
           title="Confirm User Delete"
@@ -147,11 +174,12 @@ export class UserListView extends React.Component {
 }
 const mapStateToProps = (state, ownProps) => ({
   userList: state.userList,
+  editDialogOpen: state.editUser.open,
+  editUser: state.editUser.user,
 });
 
 const mapDispatchToProps = {
   getUsers,
-  openEditUserDialog,
   deleteUser,
 };
 

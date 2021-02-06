@@ -24,7 +24,7 @@ function getUsers() {
  * Save user with new values
  * @param {*} user
  */
-function saveUser(user) {
+function saveUser(user, onSuccess) {
   return async function (dispatch) {
     const userApi = new UserApi();
     try {
@@ -36,6 +36,7 @@ function saveUser(user) {
       dispatch({
         type: actionTypes.editUser.end,
       });
+      onSuccess && onSuccess(data);
     } catch (ex) {
       errorHandler(ex);
     }
@@ -56,7 +57,7 @@ function deleteUser(userId) {
   };
 }
 
-function registerUser(user) {
+function registerUser(user, onSuccess) {
   return async function (dispatch) {
     const userApi = new UserApi();
     try {
@@ -65,17 +66,18 @@ function registerUser(user) {
         type: actionTypes.registration.registrationSucceeded,
         data,
       });
-      dispatch(push("/"));
+      if (onSuccess) onSuccess(data);
+      else dispatch(push("/"));
     } catch (err) {
       errorHandler(err);
     }
   };
 }
 // Launch dialog box for user edit
-function openEditUserDialog(userId) {
+function openEditUserDialog(user) {
   return {
     type: actionTypes.editUser.begin,
-    data: userId,
+    data: user,
   };
 }
 
@@ -86,4 +88,4 @@ function closeEditUserDialog() {
   };
 }
 
-export { getUsers, registerUser, openEditUserDialog, deleteUser, closeEditUserDialog, saveUser };
+export { getUsers, registerUser, deleteUser, saveUser };
