@@ -19,7 +19,6 @@ module.exports = function (req, res, next) {
     logger.error(ex);
     throw new AuthenticationError("Access token invalid");
   }
-  console.log(user);
   httpContext.set("userContext", {
     userId: user.userId,
     role: user.role,

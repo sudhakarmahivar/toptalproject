@@ -5,7 +5,7 @@ const UserModel = require("./model/userModel");
 const roles = require("../common/roles");
 const ValidationError = require("../../framework/errors/validationError");
 const AuthorizationError = require("../../framework/errors/authorizationError");
-const AuthenticationError = require("../../framework/errors/AuthenticationError");
+const AuthenticationError = require("../../framework/errors/authenticationError");
 const ResourceNotFoundError = require("../../framework/errors/ResourceNotFoundError");
 const passwordValidator = require("password-validator");
 const bcrypt = require("bcryptjs");
@@ -86,7 +86,7 @@ class UserService {
     const { userId: loggedInUserId, role: loggedInUserRole } = this.userContext;
 
     //Allow password change
-    userModel.userName = dbRecord.userName;
+    //userModel.userName = dbRecord.userName;
 
     //Validate if you are authorized
     let allowed = false;

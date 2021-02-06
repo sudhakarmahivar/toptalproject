@@ -109,7 +109,6 @@ class TimeSheetService {
     this.validateModel(timeSheetModel);
     await this.validateDayTotal(timeSheetModel);
     timeSheetModel = await this.repository.save(timeSheetModel);
-    //console.log(timeSheets);
     return timeSheetModel;
   }
   async delete(timeSheetId) {

@@ -3,10 +3,10 @@
  */
 class ServiceError {
   errorCode = null;
-  error = null; //error object
-  constructor(errorCode, error) {
+  message = null; //error object
+  constructor(errorCode, message) {
     this.errorCode = errorCode;
-    this.error = error;
+    this.message = message;
   }
 }
 module.exports = ServiceError;

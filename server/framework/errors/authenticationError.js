@@ -1,3 +1,4 @@
+const { logger } = require("../framework");
 const errorCodes = require("./errorCodes");
 const errorMessages = require("./errorMessages");
 const ServiceError = require("./serviceError");
