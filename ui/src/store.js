@@ -4,6 +4,7 @@ import errorReducer from "./reducers/errorReducer";
 import editUserReducer from "./reducers/editUserReducer";
 import userListReducer from "./reducers/userListReducer";
 import registrationReducer from "./reducers/registrationReducer";
+import timeSheetListReducer from "./reducers/timeSheetListReducer";
 
 import thunk from "redux-thunk";
 import { createStore, applyMiddleware, combineReducers } from "redux";
@@ -17,6 +18,7 @@ const rootReducer = combineReducers({
   error: errorReducer,
   editUser: editUserReducer,
   registration: registrationReducer,
+  timeSheetList: timeSheetListReducer,
   router: connectRouter(history),
 });
 const store = createStore(rootReducer, composeWithDevTools(applyMiddleware(routerMiddleware(history), thunk)));

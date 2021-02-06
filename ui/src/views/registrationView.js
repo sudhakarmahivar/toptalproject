@@ -110,7 +110,6 @@ class RegistrationView extends React.Component {
   render() {
     const { user, formErrors, password2, editMode, userNameError, passwordError } = this.state;
     let { allowRoleEdit } = this.props;
-    console.log(allowRoleEdit, " role didt");
     return (
       <div className="registrationView">
         <form className="registrationForm" noValidate autoComplete="off" onSubmit={this.onSubmit}>
@@ -164,7 +163,7 @@ class RegistrationView extends React.Component {
               >
                 <MenuItem value={"u"}>User</MenuItem>
                 <MenuItem value={"m"}>Manager</MenuItem>
-                <MenuItem value={"a"}>Administrator</MenuItem>
+                <MenuItem value={"a"}>Admin</MenuItem>
               </Select>
             </FormControl>
           )}

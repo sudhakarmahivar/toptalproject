@@ -21,6 +21,11 @@ export class UserListView extends React.Component {
   columnDefs = [];
   constructor(props) {
     super(props);
+    const roleNames = {
+      u: "User",
+      a: "Admin",
+      m: "Manager",
+    };
     this.state = {
       editDialogOpen: false,
       editUser: null,
@@ -37,6 +42,9 @@ export class UserListView extends React.Component {
     this.columnDefs.push({
       headerName: "Role",
       field: "role",
+      valueFormatter: (params) => {
+        return roleNames[params.value];
+      },
     });
     this.columnDefs.push({
       cellRenderer: "EditLinkRenderer",
@@ -68,7 +76,6 @@ export class UserListView extends React.Component {
     );
   }
   deleteUser = () => {
-    console.log("Proceeding withdelete:", this.state.deleteUserId);
     const { deleteUser } = this.props;
     const { deleteUserId: userId } = this.state;
     deleteUser(userId);
@@ -83,7 +90,6 @@ export class UserListView extends React.Component {
   };
 
   onDelete = (user) => {
-    console.log("You are deleted user", user);
     this.setState({
       deleteConfirmationOpen: true,
       confirmationMessage: "You are about to delete user:" + user.userName,

@@ -11,7 +11,6 @@ const styles = {
 class WithDialogView extends React.Component {
   render() {
     const { open, classes, onClose, children } = this.props;
-    console.log(open, onClose, "youare here");
     return (
       <div className="withDialogView">
         <Dialog

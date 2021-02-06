@@ -73,19 +73,5 @@ function registerUser(user, onSuccess) {
     }
   };
 }
-// Launch dialog box for user edit
-function openEditUserDialog(user) {
-  return {
-    type: actionTypes.editUser.begin,
-    data: user,
-  };
-}
-
-// Close dialog box once edit completed/cancelled
-function closeEditUserDialog() {
-  return {
-    type: actionTypes.editUser.end,
-  };
-}
 
 export { getUsers, registerUser, deleteUser, saveUser };

@@ -19,5 +19,9 @@ const actionTypes = {
     clearRedirections: "clearRegistrationRedirections",
     registrationSucceeded: "registrationSucceeded",
   },
+  timeSheetList: {
+    refreshed: "timeSheetListRefreshed",
+    showDayTimeSheet: "showDayTimeSheet",
+  },
 };
 export default actionTypes;
