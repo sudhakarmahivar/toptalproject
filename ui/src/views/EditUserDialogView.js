@@ -22,7 +22,6 @@ const styles = {
 
 export class EditUserDialogView extends React.Component {
   handleClose = () => {
-    console.log("You closed the dialog");
     this.props.closeEditUserDialog();
   };
   render() {
@@ -51,7 +50,6 @@ export class EditUserDialogView extends React.Component {
   }
 }
 const mapStateToProps = (state, ownProps) => {
-  console.log(state);
   return { open: state.editUser.open, userId: state.editUser.userId, users: state.userList.users };
 };
 

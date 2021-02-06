@@ -69,7 +69,8 @@ class LoginView extends React.Component {
     );
   }
 }
+const mapStateToProps = (state, ownProps) => ({});
 const mapDispatchToProps = {
   authenticate,
 };
-export default connect(() => {}, mapDispatchToProps)(LoginView);
+export default connect(mapStateToProps, mapDispatchToProps)(LoginView);

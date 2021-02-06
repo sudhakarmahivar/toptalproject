@@ -3,12 +3,13 @@ import { connect } from "react-redux";
 import { AgGridReact, SortableHeaderComponent } from "ag-grid-react";
 import "ag-grid-community/dist/styles/ag-grid.css";
 import "ag-grid-community/dist/styles/ag-theme-alpine.css";
-import { getUsers, openEditUserDialog } from "../controllers/userController";
+import { getUsers, openEditUserDialog, deleteUser } from "../controllers/userController";
 
 import IconButton from "@material-ui/core/IconButton";
 import EditIcon from "@material-ui/icons/Edit";
 import DeleteIcon from "@material-ui/icons/Delete";
 import EditUserDialogView from "./EditUserDialogView";
+import ConfirmationDialogView from "./ConfirmationDialogView";
 /**
  * Displays all users
  */
@@ -19,6 +20,8 @@ export class UserListView extends React.Component {
     super(props);
     this.state = {
       editDialogOpen: false,
+      deleteConfirmationOpen: false,
+      confirmationMessage: null,
     };
 
     this.columnDefs.push({
@@ -55,22 +58,50 @@ export class UserListView extends React.Component {
       </IconButton>
     );
   }
+  deleteUser = () => {
+    console.log("Proceeding withdelete:", this.state.deleteUserId);
+    const { deleteUser } = this.props;
+    const { deleteUserId: userId } = this.state;
+    deleteUser(userId);
+    this.setState({
+      deleteConfirmationOpen: false,
+    });
+  };
+  cancelDelete = () => {
+    this.setState({
+      deleteConfirmationOpen: false,
+    });
+  };
+
+  onDelete = (user) => {
+    console.log("You are deleted user", user);
+    this.setState({
+      deleteConfirmationOpen: true,
+      confirmationMessage: "You are about to delete user:" + user.userName,
+      deleteUserId: user.userId,
+    });
+  };
   DeleteButtonRenderer(props) {
+    const user = props.value.rowData;
     return (
-      <IconButton aria-label="delete">
+      <IconButton
+        aria-label="delete"
+        onClick={() => {
+          this.onDelete(user);
+        }}
+      >
         <DeleteIcon fontSize="small" />
       </IconButton>
     );
   }
   componentDidMount() {
-    console.log("Did mount");
     const { getUsers } = this.props;
     getUsers();
   }
 
   render() {
     const users = this.props.userList.users;
-    console.log(this.state.editDialogOpen);
+    const { confirmationMessage, deleteConfirmationOpen } = this.state;
     if (!users || users.length === 0) return null;
     return (
       <div className="userListView">
@@ -102,6 +133,14 @@ export class UserListView extends React.Component {
           ></AgGridReact>
         </div>
         <EditUserDialogView />
+        <ConfirmationDialogView
+          open={deleteConfirmationOpen}
+          title="Confirm User Delete"
+          message={confirmationMessage}
+          okText="Delete"
+          okHandler={this.deleteUser}
+          cancelHandler={this.cancelDelete}
+        />
       </div>
     );
   }
@@ -113,6 +152,7 @@ const mapStateToProps = (state, ownProps) => ({
 const mapDispatchToProps = {
   getUsers,
   openEditUserDialog,
+  deleteUser,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(UserListView);

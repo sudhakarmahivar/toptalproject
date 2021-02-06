@@ -11,16 +11,12 @@ class BaseApi {
     this.apiClient.interceptors.response.use(
       (response) => response.data,
       (err) => {
-        console.log("interceptor");
         if (err.response) {
           //Service has been hit and we got non 2xx response
-          console.log("inside custom error");
-          console.log(err.response.data);
           const { errorCode, message } = err.response.data;
           throw new ApiError(message, errorCode);
         } else {
-          console.log("non-custom-error");
-          throw new ApiError("Service x Error", "SYSERR");
+          throw new ApiError("Service Error", "SYSERR");
         }
       }
     );

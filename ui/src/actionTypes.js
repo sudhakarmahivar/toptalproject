@@ -4,6 +4,7 @@ const actionTypes = {
     refreshed: "userListRefreshed",
     addUser: "addUserToUserList",
     updateUser: "updateUserInUserList",
+    deleteUser: "deleteUserInUserList",
   },
   editUser: {
     begin: "editUserBegin",

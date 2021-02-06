@@ -36,6 +36,15 @@ function userListReducer(state = initialState, action = {}) {
       users,
     };
   }
+  if (action.type === actionTypes.userList.deleteUser) {
+    //refresh userList
+    const userId = action.data;
+    let users = state.users.filter((user) => user.userId !== userId);
+    return {
+      ...state,
+      users,
+    };
+  }
   return state;
 }
 export default userListReducer;

@@ -12,23 +12,21 @@ import { history } from "./store";
 class App extends React.Component {
   render() {
     const { authContext } = this.props;
-    console.log(this.props);
     const loggedIn = !!authContext.accessToken;
-    console.log("LoggedIn:", loggedIn);
     const routes = loggedIn
       ? [
-          <Route exact path="/">
+          <Route exact path="/" key="home">
             <HomeView />
           </Route>,
-          <Route path="/users">
+          <Route path="/users" key="users">
             <UserListView />
           </Route>,
         ]
       : [
-          <Route exact path="/">
+          <Route exact path="/" key="login">
             <LoginView />
           </Route>,
-          <Route path="/registration">
+          <Route path="/registration" key="registration">
             <RegistrationView />
           </Route>,
         ];

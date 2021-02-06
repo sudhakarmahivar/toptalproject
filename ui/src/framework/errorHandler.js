@@ -1,7 +1,6 @@
 import actionTypes from "../actionTypes";
 import store from "../store";
 export default function errorHandler(err) {
-  console.log(err);
   if (!err) return;
   let message, errorCode;
   if (err.errorCode) {

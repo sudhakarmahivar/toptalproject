@@ -6,8 +6,5 @@ class AuthApi extends BaseApi {
       password,
     });
   };
-  registerUser = async (user) => {
-    return this.apiClient.post("/auth/register", user);
-  };
 }
 export default AuthApi;

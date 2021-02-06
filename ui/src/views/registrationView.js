@@ -6,8 +6,7 @@ import InputLabel from "@material-ui/core/InputLabel";
 import MenuItem from "@material-ui/core/MenuItem";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
-import { registerUser } from "../controllers/loginController";
-import { saveUser } from "../controllers/userController";
+import { saveUser, registerUser } from "../controllers/userController";
 import { clearError } from "../controllers/errorController";
 import ServiceErrorView from "./ServiceErrorView";
 import FormErrorView from "./FormErrorView";
@@ -24,13 +23,13 @@ class RegistrationView extends React.Component {
       editMode,
       password2: null,
     };
-    console.log(props.user);
   }
   onUserNameChange = ({ target }) => {
     const { user } = this.state;
     user.userName = target.value;
     this.setState({
       user,
+      userNameError: false,
     });
   };
   onPasswordChange = ({ target }) => {
@@ -38,11 +37,13 @@ class RegistrationView extends React.Component {
     user.password = target.value;
     this.setState({
       user,
+      passwordError: false,
     });
   };
   onPassword2Change = ({ target }) => {
     this.setState({
       password2: target.value,
+      passwordError: false,
     });
   };
   handleRoleChange = ({ target }) => {
@@ -63,13 +64,14 @@ class RegistrationView extends React.Component {
     }
     return validatePasswordSchema(password);
   };
-  validateUserName = (userName) => {
+  validateUserName = (userName, errors) => {
     return userName.length < 8 || !userName.match(/^[0-9a-z]+$/i)
       ? "User name should be 8 characters in length and only alphanumeric"
       : null;
   };
 
-  onSubmit = () => {
+  onSubmit = (event) => {
+    event.preventDefault();
     const { user, editMode, password2 } = this.state;
     const { clearError, registerUser, saveUser } = this.props;
     //clear service and client errors
@@ -78,34 +80,47 @@ class RegistrationView extends React.Component {
       formErrors: null,
     });
     let errors = [];
-    errors.push(this.validateUserName(user.userName));
-    !editMode && errors.push(this.validatePassword(user.password, password2));
-    errors = errors.filter((e) => !!e);
+    let userNameError = false,
+      passwordError = false;
 
+    let validationError = this.validateUserName(user.userName, errors);
+    if (validationError) {
+      errors.push(validationError);
+      userNameError = true;
+    }
+    if (!editMode) {
+      validationError = this.validatePassword(user.password, password2);
+      if (validationError) {
+        errors.push(validationError);
+        passwordError = true;
+      }
+    }
     if (errors.length > 0) {
       this.setState({
         formErrors: errors,
+        passwordError,
+        userNameError,
       });
       return;
     }
-    console.log("onSubmit:", user.userId);
     if (editMode) saveUser(user);
     else registerUser(user);
   };
 
   render() {
-    const { user, formErrors, password2, editMode } = this.state;
+    const { user, formErrors, password2, editMode, userNameError, passwordError } = this.state;
     let { allowRoleEdit } = this.props;
 
     return (
       <div className="registrationView">
-        <form className="registrationForm" noValidate autoComplete="off">
+        <form className="registrationForm" noValidate autoComplete="off" onSubmit={this.onSubmit}>
           <div>User name instructions, password instructions goes here</div>
           <div>
             <TextField
               required
               id="userName"
               label="User Name"
+              error={userNameError}
               onChange={this.onUserNameChange}
               value={user.userName}
             />
@@ -121,6 +136,7 @@ class RegistrationView extends React.Component {
                   type="password"
                   onChange={this.onPasswordChange}
                   value={user.password}
+                  error={passwordError}
                 />
               </div>
               <div>
@@ -131,6 +147,7 @@ class RegistrationView extends React.Component {
                   type="password"
                   onChange={this.onPassword2Change}
                   value={password2}
+                  error={passwordError}
                 />
               </div>
             </div>
@@ -153,7 +170,7 @@ class RegistrationView extends React.Component {
           )}
 
           <div>
-            <Button variant="contained" color="primary" onClick={this.onSubmit}>
+            <Button variant="contained" color="primary" type="submit">
               Submit
             </Button>
             <FormErrorView messages={formErrors} />

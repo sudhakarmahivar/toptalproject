@@ -6,5 +6,11 @@ class UserApi extends BaseApi {
   saveUser = async (user) => {
     return this.apiClient.put("/user", user);
   };
+  createUser = async (user) => {
+    return this.apiClient.post("/auth/register", user);
+  };
+  deleteUser = async (userId) => {
+    return this.apiClient.delete("/user/" + userId);
+  };
 }
 export default UserApi;

@@ -1,6 +1,8 @@
 import UserApi from "../api/userApi";
 import actionTypes from "../actionTypes";
 import errorHandler from "../framework/errorHandler";
+import { push } from "connected-react-router";
+
 /**
  * Get Users list ( non deleted)
  */
@@ -39,6 +41,36 @@ function saveUser(user) {
     }
   };
 }
+function deleteUser(userId) {
+  return async function (dispatch) {
+    const userApi = new UserApi();
+    try {
+      await userApi.deleteUser(userId);
+      dispatch({
+        type: actionTypes.userList.deleteUser,
+        data: userId,
+      });
+    } catch (err) {
+      errorHandler(err);
+    }
+  };
+}
+
+function registerUser(user) {
+  return async function (dispatch) {
+    const userApi = new UserApi();
+    try {
+      let data = await userApi.createUser(user);
+      dispatch({
+        type: actionTypes.registration.registrationSucceeded,
+        data,
+      });
+      dispatch(push("/"));
+    } catch (err) {
+      errorHandler(err);
+    }
+  };
+}
 // Launch dialog box for user edit
 function openEditUserDialog(userId) {
   return {
@@ -54,4 +86,4 @@ function closeEditUserDialog() {
   };
 }
 
-export { getUsers, openEditUserDialog, closeEditUserDialog, saveUser };
+export { getUsers, registerUser, openEditUserDialog, deleteUser, closeEditUserDialog, saveUser };
