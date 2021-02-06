@@ -9,6 +9,7 @@ import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-d
 class App extends React.Component {
   render() {
     const { authContext } = this.props;
+    console.log(this.props);
     const loggedIn = !!authContext.accessToken;
     console.log("LoggedIn:", loggedIn);
     const routes = loggedIn

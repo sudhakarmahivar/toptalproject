@@ -1,6 +1,14 @@
 export default {
   auth: { authSucceeded: "authSucceeded", registrationSucceeded: "registrationSucceeded" },
   userList: {
-    refreshed: "refreshed",
+    refreshed: "userListRefreshed",
+  },
+  editUser: {
+    begin: "editUserBegin",
+    end: "editUserEnd",
+  },
+  error: {
+    setError: "setError",
+    clearError: "clearError",
   },
 };

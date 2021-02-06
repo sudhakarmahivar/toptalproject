@@ -4,14 +4,19 @@ import { AgGridReact, SortableHeaderComponent } from "ag-grid-react";
 import "ag-grid-community/dist/styles/ag-grid.css";
 import "ag-grid-community/dist/styles/ag-theme-alpine.css";
 
-import { getUsers } from "../controllers/userController";
-import { makeStyles } from "@material-ui/core/styles";
+import { getUsers, openEditUserDialog } from "../controllers/userController";
+
 import Button from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
 import EditIcon from "@material-ui/icons/Edit";
 import DeleteIcon from "@material-ui/icons/Delete";
 import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
-
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import EditUserDialogView from "./EditUserDialogView";
 /**
  * Displays all users
  */
@@ -20,6 +25,9 @@ export class UserListView extends React.Component {
   columnDefs = [];
   constructor(props) {
     super(props);
+    this.state = {
+      editDialogOpen: false,
+    };
 
     this.columnDefs.push({
       headerName: "User Name",
@@ -44,8 +52,14 @@ export class UserListView extends React.Component {
   }
   EditLinkRenderer(props) {
     const { userId } = props.value.rowData;
+    const user = this.props.userList.data.find((user) => user.userId === userId);
     return (
-      <IconButton aria-label="delete">
+      <IconButton
+        aria-label="edit"
+        onClick={() => {
+          this.props.openEditUserDialog(userId);
+        }}
+      >
         <EditIcon fontSize="small" />
       </IconButton>
     );
@@ -63,11 +77,12 @@ export class UserListView extends React.Component {
     const { getUsers } = this.props;
     getUsers();
   }
+
   render() {
     const userList = this.props.userList.data;
     const classes = {};
-
-    console.log(userList);
+    const dialogOpen = true;
+    console.log(this.state.editDialogOpen);
     if (!userList || userList.length === 0) return null;
     return (
       <div className="userListView">
@@ -98,6 +113,7 @@ export class UserListView extends React.Component {
             }}
           ></AgGridReact>
         </div>
+        <EditUserDialogView />
       </div>
     );
   }
@@ -108,6 +124,7 @@ const mapStateToProps = (state, ownProps) => ({
 
 const mapDispatchToProps = {
   getUsers,
+  openEditUserDialog,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(UserListView);

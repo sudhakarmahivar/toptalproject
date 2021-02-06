@@ -13,4 +13,17 @@ function getUsers() {
   };
 }
 
-export { getUsers };
+function openEditUserDialog(userId) {
+  return {
+    type: actionTypes.editUser.begin,
+    data: userId,
+  };
+}
+function closeEditUserDialog() {
+  return {
+    type: actionTypes.editUser.end,
+    data: null,
+  };
+}
+
+export { getUsers, openEditUserDialog, closeEditUserDialog };
