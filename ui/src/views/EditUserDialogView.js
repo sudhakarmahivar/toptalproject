@@ -26,9 +26,9 @@ export class EditUserDialogView extends React.Component {
     this.props.closeEditUserDialog();
   };
   render() {
-    const { open, userList, userId, classes } = this.props;
+    const { open, users, userId, classes } = this.props;
     if (!open) return null;
-    const user = userList.find((u) => u.userId === userId);
+    const user = users.find((u) => u.userId === userId);
 
     return (
       <div className="editUserDialogView">
@@ -42,7 +42,7 @@ export class EditUserDialogView extends React.Component {
           <DialogContent>
             <DialogContentText>Mandatory fields are marked *</DialogContentText>
             <div>
-              <RegistrationView user={user} />
+              <RegistrationView user={user} allowRoleEdit />
             </div>
           </DialogContent>
         </Dialog>
@@ -50,11 +50,10 @@ export class EditUserDialogView extends React.Component {
     );
   }
 }
-const mapStateToProps = (state, ownProps) => ({
-  open: state.editUser.open,
-  userId: state.editUser.userId,
-  userList: state.userList.data,
-});
+const mapStateToProps = (state, ownProps) => {
+  console.log(state);
+  return { open: state.editUser.open, userId: state.editUser.userId, users: state.userList.users };
+};
 
 const mapDispatchToProps = {
   closeEditUserDialog,

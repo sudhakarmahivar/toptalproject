@@ -1,24 +1,13 @@
-import axios from "axios";
-class AuthApi {
-  apiClient = null;
-  constructor(axiosInput) {
-    this.apiClient = axiosInput || axios;
-  }
+import BaseApi from "./baseApi";
+class AuthApi extends BaseApi {
   authenticate = async (userName, password) => {
-    return this.apiClient
-      .post("/auth/login", {
-        userName,
-        password,
-      })
-      .then((res) => res.data);
+    return this.apiClient.post("/auth/login", {
+      userName,
+      password,
+    });
   };
-  registerUser = async (userName, password) => {
-    return this.apiClient
-      .post("/auth/register", {
-        userName,
-        password,
-      })
-      .then((res) => res.data);
+  registerUser = async (user) => {
+    return this.apiClient.post("/auth/register", user);
   };
 }
 export default AuthApi;

@@ -4,6 +4,7 @@ import { Button } from "@material-ui/core";
 import TextField from "@material-ui/core/TextField";
 import { authenticate } from "../controllers/loginController";
 import { Link } from "react-router-dom";
+import ServiceErrorView from "./ServiceErrorView";
 class LoginView extends React.Component {
   constructor(props) {
     super(props);
@@ -25,26 +26,24 @@ class LoginView extends React.Component {
     });
   };
 
-  onSubmit = () => {
-    console.log("login clicked");
-
+  onSubmit = (event) => {
+    event.preventDefault(); //stop reloading of page
     const { name, password } = this.state;
+    const { authenticate } = this.props;
+
     let nameError = false,
       passwordError = false;
     if (!name) nameError = true;
     if (!password) passwordError = true;
     this.setState({ nameError, passwordError });
     if (nameError || passwordError) return;
-    const { authenticate } = this.props;
     authenticate(name, password);
-    console.log("all good. to submit data now");
   };
   render() {
     const { nameError, passwordError } = this.state;
-    console.log(nameError, passwordError);
     return (
       <div className="loginView">
-        <form className="loginForm" noValidate autoComplete="off">
+        <form className="loginForm" noValidate autoComplete="off" onSubmit={this.onSubmit}>
           <div>
             <TextField required id="userName" error={nameError} label="User Name" onChange={this.onNameChange} />
           </div>
@@ -59,20 +58,18 @@ class LoginView extends React.Component {
             />
           </div>
 
-          <Button variant="contained" color="primary" onClick={this.onSubmit}>
+          <Button variant="contained" color="primary" type="submit">
             Login
           </Button>
 
           <Link to="/registration">New User</Link>
         </form>
+        <ServiceErrorView />
       </div>
     );
   }
 }
-const mapStateToProps = (state, ownProps) => ({});
-
 const mapDispatchToProps = {
   authenticate,
 };
-
-export default connect(mapStateToProps, mapDispatchToProps)(LoginView);
+export default connect(() => {}, mapDispatchToProps)(LoginView);

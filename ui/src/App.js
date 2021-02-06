@@ -5,7 +5,10 @@ import LoginView from "./views/loginView";
 import HomeView from "./views/homeView";
 import RegistrationView from "./views/registrationView";
 import UserListView from "./views/userListView";
-import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom";
+import { Switch, Route, Redirect } from "react-router-dom";
+import { ConnectedRouter } from "connected-react-router";
+import { history } from "./store";
+
 class App extends React.Component {
   render() {
     const { authContext } = this.props;
@@ -32,14 +35,14 @@ class App extends React.Component {
 
     return (
       <div className="App">
-        <Router>
+        <ConnectedRouter history={history}>
           <Switch>
             {routes.map((route) => route)}
             <Route path="/">
               <Redirect to={{ pathname: "/" }} />
             </Route>
           </Switch>
-        </Router>
+        </ConnectedRouter>
       </div>
     );
   }

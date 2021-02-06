@@ -1,7 +1,7 @@
 import actionTypes from "../actionTypes";
 
 const initialState = {
-  data: [],
+  users: [],
 };
 
 function userListReducer(state = initialState, action = {}) {
@@ -9,23 +9,31 @@ function userListReducer(state = initialState, action = {}) {
     return {
       ...state,
       // and update the copy with the new value
-      data: action.data,
+      users: action.data,
     };
   }
-  if (action.type === actionTypes.auth.registrationSucceeded) {
+  if (action.type === actionTypes.registration.registrationSucceeded) {
+    const users = [...state.users];
+    users.push(action.data);
+    return {
+      ...state,
+      // and update the copy with the new value
+      users,
+    };
+  }
+  if (action.type === actionTypes.userList.updateUser) {
     //refresh userList
     const user = action.data;
-    const userList = [...state.data];
-    const existingUserIndex = userList.findIndex((u) => u.userId === user.userId);
+    const users = [...state.users];
+    const existingUserIndex = users.findIndex((u) => u.userId === user.userId);
     if (existingUserIndex < 0) {
-      //new user. push to userList
-      userList.push(user);
+      return state;
     } else {
-      userList[existingUserIndex] = user;
+      users[existingUserIndex] = user;
     }
     return {
       ...state,
-      data: userList,
+      users,
     };
   }
   return state;

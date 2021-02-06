@@ -6,18 +6,21 @@ import reportWebVitals from "./reportWebVitals";
 import "primereact/resources/themes/saga-blue/theme.css";
 import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
+import { ConnectedRouter } from "connected-react-router";
 
 //import * as serviceWorker from "./serviceWorker";
 //import "fontsource-roboto"; //required for material-ui
 
 import { Provider } from "react-redux";
 
-import store from "./store";
+import store, { history } from "./store";
 
 ReactDOM.render(
   <React.StrictMode>
     <Provider store={store}>
-      <App />
+      <ConnectedRouter history={history}>
+        <App />
+      </ConnectedRouter>
     </Provider>
   </React.StrictMode>,
   document.getElementById("root")

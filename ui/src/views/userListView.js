@@ -3,19 +3,11 @@ import { connect } from "react-redux";
 import { AgGridReact, SortableHeaderComponent } from "ag-grid-react";
 import "ag-grid-community/dist/styles/ag-grid.css";
 import "ag-grid-community/dist/styles/ag-theme-alpine.css";
-
 import { getUsers, openEditUserDialog } from "../controllers/userController";
 
-import Button from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
 import EditIcon from "@material-ui/icons/Edit";
 import DeleteIcon from "@material-ui/icons/Delete";
-import ArrowDownwardIcon from "@material-ui/icons/ArrowDownward";
-import Dialog from "@material-ui/core/Dialog";
-import DialogActions from "@material-ui/core/DialogActions";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogContentText from "@material-ui/core/DialogContentText";
-import DialogTitle from "@material-ui/core/DialogTitle";
 import EditUserDialogView from "./EditUserDialogView";
 /**
  * Displays all users
@@ -52,7 +44,6 @@ export class UserListView extends React.Component {
   }
   EditLinkRenderer(props) {
     const { userId } = props.value.rowData;
-    const user = this.props.userList.data.find((user) => user.userId === userId);
     return (
       <IconButton
         aria-label="edit"
@@ -65,7 +56,6 @@ export class UserListView extends React.Component {
     );
   }
   DeleteButtonRenderer(props) {
-    const { userId } = props.value.rowData;
     return (
       <IconButton aria-label="delete">
         <DeleteIcon fontSize="small" />
@@ -79,11 +69,9 @@ export class UserListView extends React.Component {
   }
 
   render() {
-    const userList = this.props.userList.data;
-    const classes = {};
-    const dialogOpen = true;
+    const users = this.props.userList.users;
     console.log(this.state.editDialogOpen);
-    if (!userList || userList.length === 0) return null;
+    if (!users || users.length === 0) return null;
     return (
       <div className="userListView">
         <div
@@ -95,7 +83,7 @@ export class UserListView extends React.Component {
         >
           <AgGridReact
             columnDefs={this.columnDefs}
-            rowData={userList}
+            rowData={users}
             enableCellTextSelection
             // setting default column properties
             defaultColDef={{

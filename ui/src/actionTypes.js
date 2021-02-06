@@ -1,7 +1,9 @@
-export default {
-  auth: { authSucceeded: "authSucceeded", registrationSucceeded: "registrationSucceeded" },
+const actionTypes = {
+  auth: { authSucceeded: "authSucceeded" },
   userList: {
     refreshed: "userListRefreshed",
+    addUser: "addUserToUserList",
+    updateUser: "updateUserInUserList",
   },
   editUser: {
     begin: "editUserBegin",
@@ -11,4 +13,10 @@ export default {
     setError: "setError",
     clearError: "clearError",
   },
+  registration: {
+    redirectOnSuccess: "redirectOnSuccessRegistration",
+    clearRedirections: "clearRegistrationRedirections",
+    registrationSucceeded: "registrationSucceeded",
+  },
 };
+export default actionTypes;
