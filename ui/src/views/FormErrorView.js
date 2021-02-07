@@ -9,8 +9,8 @@ export default class FormErrorView extends React.Component {
     if (messages.length === 0) return null;
     return (
       <div>
-        {messages.map((message) => (
-          <div> {message}</div>
+        {messages.map((message, i) => (
+          <div key={i}> {message}</div>
         ))}
       </div>
     );
