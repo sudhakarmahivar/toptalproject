@@ -3,10 +3,6 @@ export default function getNumericCellEditor(min, max) {
     return !!/\d/.test(charStr);
   }
 
-  function getNumericKeyPressed(event) {
-    var charCode = getCharCodeFromEvent(event);
-    return String.fromCharCode(charCode);
-  }
   function isKeyPressedNumeric(event) {
     var charCode = getCharCodeFromEvent(event);
     var charStr = String.fromCharCode(charCode);

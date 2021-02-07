@@ -22,6 +22,9 @@ const actionTypes = {
   timeSheetList: {
     refreshed: "timeSheetListRefreshed",
     showDayTimeSheet: "showDayTimeSheet",
+    addTimeSheets: "addTimeSheets",
+    updateTimeSheets: "updateTimeSheets",
+    deleteTimeSheets: "deleteTimeSheets",
   },
 };
 export default actionTypes;

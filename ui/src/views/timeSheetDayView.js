@@ -3,7 +3,12 @@ import { connect } from "react-redux";
 import { AgGridReact, SortableHeaderComponent } from "ag-grid-react";
 import "ag-grid-community/dist/styles/ag-grid.css";
 import "ag-grid-community/dist/styles/ag-theme-alpine.css";
-import { showDayTimeSheet } from "../controllers/timeSheetController";
+import {
+  showDayTimeSheet,
+  addTimeSheets,
+  updateTimeSheets,
+  deleteTimeSheets,
+} from "../controllers/timeSheetController";
 import Button from "@material-ui/core/Button";
 import getNumericCellEditor from "./NumericCellEditor";
 import FormErrorView from "./FormErrorView";
@@ -16,7 +21,7 @@ import DeleteIcon from "@material-ui/icons/Delete";
 
 export class TimeSheetDayView extends React.Component {
   columnDefs = [];
-  originalTimeSheets = [];
+
   gridApi = null;
   newRowIndex = -1;
   constructor(props) {
@@ -24,6 +29,7 @@ export class TimeSheetDayView extends React.Component {
     this.state = {
       totalHours: 0,
       formErrors: [],
+      timeSheets: JSON.parse(JSON.stringify(props.timeSheets)),
     };
     this.columnDefs.push({
       headerName: "Activity",
@@ -47,16 +53,9 @@ export class TimeSheetDayView extends React.Component {
   }
   onDelete = (timeSheet) => {
     console.log(timeSheet, "deleted");
-    let { timeSheets } = this.props;
-    const index = timeSheets.findIndex((ts) => ts.timeSheetId === timeSheet.timeSheetId);
-    if (index > -1) {
-      timeSheets.splice(index, 1);
-    }
-
-    this.gridApi.setRowData(timeSheets);
+    this.gridApi.updateRowData({ remove: [timeSheet] });
     this.validateData();
-
-    console.log(timeSheets);
+    return;
   };
   onSummaryClick = () => {
     this.props.showDayTimeSheet(null);
@@ -88,7 +87,12 @@ export class TimeSheetDayView extends React.Component {
   };
 
   onNewRowClick = () => {
-    let newRow = { timeSheetId: this.newRowIndex--, activity: "Enter your activity here", hours: 0 };
+    let newRow = {
+      date: this.props.date,
+      timeSheetId: this.newRowIndex--,
+      activity: "Enter your activity here",
+      hours: 0,
+    };
     //currentTimeSheets.push(newRow);
     this.gridApi.updateRowData({ add: [newRow] });
 
@@ -117,19 +121,44 @@ export class TimeSheetDayView extends React.Component {
       </IconButton>
     );
   }
-  onSubmit = () => {
-    let timeSheets = [];
-    this.gridApi.forEachNode((node) => timeSheets.push(node.data));
+  getUpdatedRows = (gridRows) => {
+    const originalTimeSheets = this.props.timeSheets;
+    console.log(originalTimeSheets);
 
-    console.log(timeSheets, "****");
+    return gridRows.filter((row) => {
+      const orig = originalTimeSheets.find((t) => t.timeSheetId === row.timeSheetId);
+      return orig.activity !== row.activity || orig.hours !== row.hours;
+    });
+  };
+  getDeletedRows = (gridRows) => {
+    //iterate and see if rows are not in original list
+    const originalTimeSheets = this.props.timeSheets;
+    return originalTimeSheets.filter((ots) => !gridRows.find((r) => r.timeSheetId === ots.timeSheetId));
+  };
+  onSubmit = () => {
+    let timeSheets = this.getAllTimeSheets();
+    let { addTimeSheets, updateTimeSheets, deleteTimeSheets } = this.props;
+    //newly added rows
+    const newRows = timeSheets.filter((ts) => ts.timeSheetId < 0);
+    const oldRows = timeSheets.filter((ts) => ts.timeSheetId >= 0);
+    const updatedRows = this.getUpdatedRows(oldRows);
+    const deletedRows = this.getDeletedRows(oldRows);
+
+    console.log("New Rows:", newRows);
+    console.log("Updated Rows:", updatedRows);
+    console.log("deleted Rows:", deletedRows);
+
+    newRows.length > 0 && addTimeSheets(newRows);
+    updatedRows.length > 0 && updateTimeSheets(updatedRows);
+    deletedRows.length > 0 && deleteTimeSheets(deletedRows);
   };
   onCellValueChanged = () => {
     this.validateData();
   };
   render() {
-    let { date, timeSheets } = this.props;
+    let { date } = this.props;
+    let { timeSheets } = this.state;
     let { totalHours, formErrors } = this.state;
-    this.originalTimeSheets = JSON.parse(JSON.stringify(timeSheets)); //backup so you can track changes
     let isError = formErrors.length > 0;
     console.log("rendere called", timeSheets);
     return (
@@ -197,6 +226,6 @@ const mapStateToProps = (state, ownProps) => {
   return { timeSheets: dayTimeSheets, date };
 };
 
-const mapDispatchToProps = { showDayTimeSheet };
+const mapDispatchToProps = { showDayTimeSheet, addTimeSheets, updateTimeSheets, deleteTimeSheets };
 
 export default connect(mapStateToProps, mapDispatchToProps)(TimeSheetDayView);
