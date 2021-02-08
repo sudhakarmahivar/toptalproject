@@ -7,5 +7,8 @@ class AuthApi extends BaseApi {
       password,
     });
   };
+  logout = async () => {
+    return this.apiClient.post(config.apiEndPoints.logout);
+  };
 }
 export default AuthApi;

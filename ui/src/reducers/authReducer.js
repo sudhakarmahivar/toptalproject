@@ -7,11 +7,13 @@ import actionTypes from "../actionTypes";
 const initialState = {
   userId: null,
   userName: null,
+  name: null,
+  email: null,
   accessToken: null,
   //"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEyLCJyb2xlIjoidSIsImlhdCI6MTYxMjUzODc5MSwiZXhwIjoxNjEyNjI1MTkxfQ.KtVKBev8vp66krAxMyZrgm_vMqxDkGiJ66wTYZ8rflk",
   role: null,
   expiresIn: 0,
-  workingHoursPerDay: 8,
+  workingHoursPerDay: 0,
 };
 
 function authReducer(state = initialState, action = {}) {
@@ -21,6 +23,9 @@ function authReducer(state = initialState, action = {}) {
       ...state,
       ...action.data,
     };
+  }
+  if (action.type === actionTypes.auth.loggedOut) {
+    return initialState;
   }
   if (action.type === actionTypes.userList.updateUser) {
     const user = action.data;

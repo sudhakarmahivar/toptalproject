@@ -57,6 +57,12 @@ class HomeLeftPanel extends React.Component {
               </ListItemIcon>
               <NavLink to="/preferences">Preferences</NavLink>
             </MenuItem>
+            <MenuItem>
+              <ListItemIcon>
+                <SettingsIcon fontSize="small" />
+              </ListItemIcon>
+              <NavLink to="/logout">Logout</NavLink>
+            </MenuItem>
           </MenuList>
         </Paper>
       </div>

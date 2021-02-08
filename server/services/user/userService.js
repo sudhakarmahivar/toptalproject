@@ -17,6 +17,10 @@ class UserService {
   userContext = null;
   passwordSchema = null;
 
+  //Temp Solution: Logged out tokens stored in-memory as against
+  //proper cache or db
+  static loggedOutTokens = [];
+
   constructor(repository, userContext) {
     this.repository = repository || getRepository(UserModel);
     this.userContext = userContext || UserContext.get();
@@ -168,6 +172,16 @@ class UserService {
     });
     delete dbUser.password;
     return { ...dbUser, accessToken, expiresIn: 86400 };
+  }
+  async logout(token) {
+    if (token) {
+      !UserService.loggedOutTokens.includes(token) && UserService.loggedOutTokens.push(token);
+    }
+    return { status: "ok" };
+  }
+  //Temp solution for logout
+  static isLoggedOut(token) {
+    return UserService.loggedOutTokens.includes(token);
   }
 }
 module.exports = UserService;

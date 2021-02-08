@@ -20,5 +20,17 @@ function authenticate(userName, password) {
     }
   };
 }
-
-export { authenticate };
+function logout() {
+  return async function (dispatch) {
+    const authApi = new AuthApi();
+    try {
+      await authApi.logout();
+      dispatch({
+        type: actionTypes.auth.loggedOut,
+      });
+    } catch (err) {
+      errorHandler(err);
+    }
+  };
+}
+export { authenticate, logout };

@@ -1,5 +1,5 @@
 const actionTypes = {
-  auth: { authSucceeded: "authSucceeded" },
+  auth: { authSucceeded: "authSucceeded", loggedOut: "loggedOut" },
   userList: {
     refreshed: "userListRefreshed",
     addUser: "addUserToUserList",

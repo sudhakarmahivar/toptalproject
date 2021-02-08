@@ -10,6 +10,7 @@ import PageHeaderView from "./pageHeaderView";
 import { getUserContext } from "../framework/userContext";
 import UserListView from "./userListView";
 import utils from "../framework/utils";
+import LogoutView from "./logoutView";
 
 const styles = {
   root: {
@@ -51,6 +52,9 @@ export class HomeView extends React.Component {
 
             <Route path={`/preferences`} key="preferences">
               <PreferencesView />
+            </Route>
+            <Route path="/logout" key="logout">
+              <LogoutView />
             </Route>
             <Route path="/" key="home">
               <div>

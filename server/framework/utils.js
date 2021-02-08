@@ -8,5 +8,8 @@ const utils = {
   isValidPastDate(date) {
     return moment(date, "YYYY-MM-DD").isBefore(moment());
   },
+  extractAuthToken(req) {
+    return req.headers.authorization.replace(/^bearer/gi, "").replace(" ", "");
+  },
 };
 module.exports = utils;
