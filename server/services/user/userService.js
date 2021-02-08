@@ -39,18 +39,33 @@ class UserService {
   //
   // Helper Methods
   //
-  validateModel(userModel) {
-    const { userName, password } = userModel;
-    if (userName && password) {
-      //values sent
-      //user name rules
-      if (userName.length < 8 || !userName.match(/^[0-9a-z]+$/i)) {
-        throw new ValidationError(errorMessages.userNameError);
-      }
-      if (!this.passwordSchema.validate(password)) throw new ValidationError(errorMessages.passwordRulesError);
+  validateModel(userModel, skipPasswordCheck = false) {
+    const { userName, password, name, workingHoursPerDay, email } = userModel;
+    console.log("Validating:" + skipPasswordCheck);
+    if (!userName) throw new ValidationError(errorMessages.userNameError);
 
-      //now valid userName, password
-    } else throw new ValidationError("One or more fields missing value");
+    //values sent
+    //user name rules
+    if (userName.length < 8 || userName.length > 25 || !userName.match(/^[0-9a-z]+$/i)) {
+      throw new ValidationError(errorMessages.userNameError);
+    }
+    if (!skipPasswordCheck) {
+      if (!this.passwordSchema.validate(password)) throw new ValidationError(errorMessages.passwordRulesError);
+    }
+
+    if (!name || !name.match(/^[a-z\s]+$/i) || name.length > 50) {
+      throw new ValidationError(errorMessages.nameError);
+    }
+    if (!email || !/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(email)) {
+      throw new ValidationError(errorMessages.emailError);
+    }
+    if (typeof workingHoursPerDay === "undefined" || workingHoursPerDay === null) {
+      //User has not sent his working Hours Per day. this should be ok
+      userModel.workingHoursPerDay = 8;
+    } else if (workingHoursPerDay < 0 || workingHoursPerDay > 24) {
+      //User has sent this explicitly then validate
+      throw new ValidationError(errorMessages.workingHoursPerDayError);
+    }
   }
 
   //
@@ -101,6 +116,7 @@ class UserService {
     if (!allowed) throw new AuthorizationError("Not authorized for User record");
     //save
     userModel.updatedBy = loggedInUserId;
+    this.validateModel(userModel, true);
     userModel = await this.repository.save(userModel);
     delete userModel.password;
 

@@ -14,7 +14,46 @@ import getNumericCellEditor from "./NumericCellEditor";
 import FormErrorView from "./FormErrorView";
 import IconButton from "@material-ui/core/IconButton";
 import DeleteIcon from "@material-ui/icons/Delete";
-
+import PageHeaderView from "./pageHeaderView";
+import AddIcon from "@material-ui/icons/Add";
+import { withStyles } from "@material-ui/core/styles";
+import SaveIcon from "@material-ui/icons/Save";
+import CancelIcon from "@material-ui/icons/Cancel";
+import Card from "@material-ui/core/Card";
+import CardActions from "@material-ui/core/CardActions";
+import CardContent from "@material-ui/core/CardContent";
+import Typography from "@material-ui/core/Typography";
+import { Paper } from "@material-ui/core";
+import { getUserContext } from "../framework/userContext";
+import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
+/**
+ * Displays all users
+ */
+const styles = (theme) => ({
+  button: {
+    margin: theme.spacing(1),
+  },
+  gridTotalSection: {
+    display: "flex",
+  },
+  totalHoursPaper: {
+    flexGrow: 1,
+    marginLeft: 50,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+  },
+  totalHoursTitle: {
+    fontSize: 40,
+  },
+  totalHoursValue: {
+    marginTop: 20,
+    fontSize: 70,
+  },
+  green: {
+    color: "green",
+  },
+});
 /**
  * Displays all users
  */
@@ -43,12 +82,16 @@ export class TimeSheetDayView extends React.Component {
       type: "numericColumn",
       cellEditor: "numericCellEditor",
       editable: true,
+      width: 75,
+      maxWidth: 75,
     });
     this.columnDefs.push({
       cellRenderer: "DeleteButtonRenderer",
       valueGetter: (params) => ({
         rowData: params.data,
       }),
+      width: 75,
+      maxWidth: 75,
     });
   }
   onDelete = (timeSheet) => {
@@ -92,6 +135,7 @@ export class TimeSheetDayView extends React.Component {
       timeSheetId: this.newRowIndex--,
       activity: "Enter your activity here",
       hours: 0,
+      userId: this.props.userId,
     };
     //currentTimeSheets.push(newRow);
     this.gridApi.updateRowData({ add: [newRow] });
@@ -102,10 +146,8 @@ export class TimeSheetDayView extends React.Component {
     console.log();
   };
   onGridReady = (params) => {
-    // placing in 13 rows, so there are exactly enough rows to fill the grid, makes
-    //DeleteButtonRenderer
-    // the row animation look nice when you see all the rows
     this.gridApi = params.api;
+    this.gridApi.sizeColumnsToFit();
   };
 
   DeleteButtonRenderer(props) {
@@ -135,6 +177,20 @@ export class TimeSheetDayView extends React.Component {
     const originalTimeSheets = this.props.timeSheets;
     return originalTimeSheets.filter((ots) => !gridRows.find((r) => r.timeSheetId === ots.timeSheetId));
   };
+  getTotalHoursDisplay = (total) => {
+    const { workingHoursPerDay = 0 } = getUserContext();
+    console.log(workingHoursPerDay);
+    const { classes } = this.props;
+    const targetMetStyle = total >= workingHoursPerDay ? classes.green : "";
+
+    return (
+      <Paper className={classes.totalHoursPaper}>
+        <div className={classes.totalHoursTitle}>Total Hours</div>
+        <div className={`${classes.totalHoursValue} ${targetMetStyle}`}>{total}</div>
+        <div></div>
+      </Paper>
+    );
+  };
   onSubmit = () => {
     let timeSheets = this.getAllTimeSheets();
     let { addTimeSheets, updateTimeSheets, deleteTimeSheets } = this.props;
@@ -156,61 +212,76 @@ export class TimeSheetDayView extends React.Component {
     this.validateData();
   };
   render() {
-    let { date } = this.props;
+    let { date, classes } = this.props;
     let { timeSheets } = this.state;
     let { totalHours, formErrors } = this.state;
     let isError = formErrors.length > 0;
     console.log("rendere called", timeSheets);
     return (
       <div className="dayTimeSheetView">
-        <div
-          className="ag-theme-alpine"
-          style={{
-            height: "800px",
-            width: "800px",
-          }}
-        >
-          Displaying for : {date}
-          <AgGridReact
-            columnDefs={this.columnDefs}
-            rowData={timeSheets}
-            stopEditingWhenGridLosesFocus={true}
-            //editType="fullRow"
-            components={{
-              numericCellEditor: getNumericCellEditor(0, 24),
+        <PageHeaderView title={`Timesheet for ${date}`} />
+        <div className={classes.gridTotalSection}>
+          <div
+            className="ag-theme-alpine"
+            style={{
+              width: "65%",
+              height: "100%",
             }}
-            frameworkComponents={{
-              DeleteButtonRenderer: this.DeleteButtonRenderer.bind(this),
-            }}
-            onGridReady={this.onGridReady}
-            onRowValueChanged={this.onRowValueChanged}
-            // setting default column properties
-            defaultColDef={{
-              sortable: true,
-              singleClickEdit: true,
-              onCellValueChanged: this.onCellValueChanged,
-              resizable: true,
-              headerComponentFramework: SortableHeaderComponent,
-              headerComponentParams: {
-                menuIcon: "fa-bars",
-              },
-            }}
-          ></AgGridReact>
-          <div>Total Hours: {totalHours}</div>
-          <div>
-            <FormErrorView messages={formErrors} />
+          >
+            <AgGridReact
+              columnDefs={this.columnDefs}
+              rowData={timeSheets}
+              stopEditingWhenGridLosesFocus={true}
+              //editType="fullRow"
+              components={{
+                numericCellEditor: getNumericCellEditor(0, 24),
+              }}
+              frameworkComponents={{
+                DeleteButtonRenderer: this.DeleteButtonRenderer.bind(this),
+              }}
+              onGridReady={this.onGridReady}
+              onRowValueChanged={this.onRowValueChanged}
+              domLayout="autoHeight"
+              pagination={true}
+              paginationPageSize={10}
+              // setting default column properties
+              defaultColDef={{
+                sortable: true,
+                singleClickEdit: true,
+                onCellValueChanged: this.onCellValueChanged,
+                resizable: true,
+                headerComponentFramework: SortableHeaderComponent,
+                headerComponentParams: {
+                  menuIcon: "fa-bars",
+                },
+              }}
+            ></AgGridReact>
           </div>
-          <Button href="#text-buttons" color="primary" onClick={this.onSummaryClick}>
-            Back to Summary
+          {this.getTotalHoursDisplay(totalHours)}
+        </div>
+        <FormErrorView messages={formErrors} />
+        <div className="actionPanel">
+          <Button variant="outlined" color="secondary" onClick={this.onSummaryClick} startIcon={<ArrowBackIosIcon />}>
+            Go To List
           </Button>
-          <Button color="primary" onClick={this.onNewRowClick}>
-            Add New Row
+          <Button
+            variant="contained"
+            color="primary"
+            className={classes.button}
+            onClick={this.onNewRowClick}
+            startIcon={<AddIcon />}
+          >
+            New Row
           </Button>
-          <Button color="primary" onClick={this.onCancelClick}>
-            Cancel{" "}
-          </Button>
-          <Button color="primary" onClick={this.onSubmit} disabled={isError}>
-            Save Timeseet
+          <Button
+            variant="contained"
+            color="primary"
+            className={classes.button}
+            onClick={this.onSubmit}
+            disabled={isError}
+            startIcon={<SaveIcon />}
+          >
+            Submit
           </Button>
         </div>
       </div>
@@ -219,13 +290,14 @@ export class TimeSheetDayView extends React.Component {
 }
 const mapStateToProps = (state, ownProps) => {
   // group activities by date
-  let timeSheets = state.timeSheetList.timeSheets;
-  const date = state.timeSheetList.date;
+  let { timeSheets, date, userId } = state.timeSheetList;
+
   let dayTimeSheets = [];
   if (date) dayTimeSheets = timeSheets.filter((ts) => ts.date === date);
-  return { timeSheets: dayTimeSheets, date };
+
+  return { timeSheets: dayTimeSheets, date, userId };
 };
 
 const mapDispatchToProps = { showDayTimeSheet, addTimeSheets, updateTimeSheets, deleteTimeSheets };
 
-export default connect(mapStateToProps, mapDispatchToProps)(TimeSheetDayView);
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(TimeSheetDayView));

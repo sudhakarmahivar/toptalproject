@@ -7,6 +7,7 @@ const initialState = {
   //"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEyLCJyb2xlIjoidSIsImlhdCI6MTYxMjUzODc5MSwiZXhwIjoxNjEyNjI1MTkxfQ.KtVKBev8vp66krAxMyZrgm_vMqxDkGiJ66wTYZ8rflk",
   role: null,
   expiresIn: 0,
+  workingHoursPerDay: 8,
 };
 
 function authReducer(state = initialState, action = {}) {

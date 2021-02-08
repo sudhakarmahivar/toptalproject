@@ -4,6 +4,7 @@ import { AgGridReact, SortableHeaderComponent } from "ag-grid-react";
 import "ag-grid-community/dist/styles/ag-grid.css";
 import "ag-grid-community/dist/styles/ag-theme-alpine.css";
 import { getUsers, deleteUser } from "../controllers/userController";
+import PageHeaderView from "./pageHeaderView";
 
 import IconButton from "@material-ui/core/IconButton";
 import Button from "@material-ui/core/Button";
@@ -13,10 +14,17 @@ import ConfirmationDialogView from "./ConfirmationDialogView";
 //import RegistrationDialogView from "./RegistrationDialogView";
 import WithDialogView from "./WithDialogView";
 import RegistrationView from "./registrationView";
+import AddIcon from "@material-ui/icons/Add";
+import { withStyles } from "@material-ui/core/styles";
+
 /**
  * Displays all users
  */
-
+const styles = (theme) => ({
+  button: {
+    margin: theme.spacing(1),
+  },
+});
 export class UserListView extends React.Component {
   columnDefs = [];
   constructor(props) {
@@ -38,27 +46,46 @@ export class UserListView extends React.Component {
     this.columnDefs.push({
       headerName: "User Name",
       field: "userName",
+      width: 100,
+    });
+    this.columnDefs.push({
+      headerName: "Name",
+      field: "name",
+      flex: 2,
+    });
+    this.columnDefs.push({
+      headerName: "Email",
+      field: "email",
+      flex: 1,
     });
     this.columnDefs.push({
       headerName: "Role",
       field: "role",
+      width: 100,
       valueFormatter: (params) => {
         return roleNames[params.value];
       },
     });
     this.columnDefs.push({
       cellRenderer: "EditLinkRenderer",
+      resizable: false,
+      width: 75,
       valueGetter: (params) => ({
         rowData: params.data,
       }),
     });
     this.columnDefs.push({
       cellRenderer: "DeleteButtonRenderer",
+      resizable: false,
+      width: 75,
       valueGetter: (params) => ({
         rowData: params.data,
       }),
     });
   }
+  onGridReady = (params) => {
+    params.api.sizeColumnsToFit();
+  };
   EditLinkRenderer(props) {
     const user = props.value.rowData;
     return (
@@ -92,7 +119,7 @@ export class UserListView extends React.Component {
   onDelete = (user) => {
     this.setState({
       deleteConfirmationOpen: true,
-      confirmationMessage: "You are about to delete user:" + user.userName,
+      confirmationMessage: "You are about to delete user:" + user.name,
       deleteUserId: user.userId,
     });
   };
@@ -128,25 +155,37 @@ export class UserListView extends React.Component {
 
   render() {
     const users = this.props.userList.users;
-    const { confirmationMessage, deleteConfirmationOpen } = this.state;
-    const { editDialogOpen, editUser } = this.state;
-    if (!users || users.length === 0) return null;
+    const { confirmationMessage, deleteConfirmationOpen, editDialogOpen, editUser } = this.state;
+    const { classes } = this.props;
+    let dialogTitle = "Create user";
+    if (editUser) {
+      dialogTitle = "Edit User";
+    }
     return (
       <div className="userListView">
-        <Button variant="contained" color="primary" onClick={this.onCreateUser}>
-          New User
+        <PageHeaderView title={`Manage Users`} subtitle={"You can edit, delete users from here"} />
+        <Button
+          variant="contained"
+          color="primary"
+          className={classes.button}
+          onClick={this.onCreateUser}
+          startIcon={<AddIcon />}
+        >
+          Add User
         </Button>
         <div
           className="ag-theme-alpine"
           style={{
-            height: "800px",
-            width: "800px",
+            width: "100%",
           }}
         >
           <AgGridReact
             columnDefs={this.columnDefs}
             rowData={users}
             enableCellTextSelection
+            domLayout="autoHeight"
+            pagination={true}
+            paginationPageSize={10}
             // setting default column properties
             defaultColDef={{
               sortable: true,
@@ -157,13 +196,14 @@ export class UserListView extends React.Component {
                 menuIcon: "fa-bars",
               },
             }}
+            onGridReady={this.onGridReady}
             frameworkComponents={{
               EditLinkRenderer: this.EditLinkRenderer.bind(this),
               DeleteButtonRenderer: this.DeleteButtonRenderer.bind(this),
             }}
           ></AgGridReact>
         </div>
-        <WithDialogView open={editDialogOpen} onClose={this.closeDialog}>
+        <WithDialogView open={editDialogOpen} onClose={this.closeDialog} title={dialogTitle}>
           <RegistrationView user={editUser} allowRoleEdit onSuccess={this.closeDialog} />
         </WithDialogView>
         <ConfirmationDialogView
@@ -189,4 +229,4 @@ const mapDispatchToProps = {
   deleteUser,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(UserListView);
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(UserListView));

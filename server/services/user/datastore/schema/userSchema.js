@@ -15,5 +15,8 @@ module.exports = new DBEntitySchema({
     userName: { type: "varchar" },
     role: { type: "varchar" }, //TODO: check other compact format
     password: { type: "varchar" },
+    name: { type: "varchar" },
+    email: { type: "varchar" },
+    workingHoursPerDay: { type: "float" },
   },
 });

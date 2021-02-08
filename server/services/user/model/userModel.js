@@ -10,4 +10,6 @@ module.exports = class UserModel extends (
   userName;
   role;
   password;
+  name;
+  workingHoursPerDay;
 };

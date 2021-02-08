@@ -28,6 +28,7 @@ function saveUser(user, onSuccess) {
   return async function (dispatch) {
     const userApi = new UserApi();
     try {
+      dispatch({ type: actionTypes.error.clearError });
       let data = await userApi.saveUser(user);
       dispatch({
         type: actionTypes.userList.updateUser,

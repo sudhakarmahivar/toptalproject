@@ -9,6 +9,10 @@ import { Switch, Route, Redirect } from "react-router-dom";
 import { ConnectedRouter } from "connected-react-router";
 import { history } from "./store";
 import TimeSheetContainer from "./views/timeSheetContainer";
+import PreferencesView from "./views/preferencesView";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import Typography from "@material-ui/core/Typography";
+import Container from "@material-ui/core/Container";
 
 class App extends React.Component {
   render() {
@@ -16,14 +20,8 @@ class App extends React.Component {
     const loggedIn = !!authContext.accessToken;
     const routes = loggedIn
       ? [
-          <Route exact path="/" key="home">
+          <Route path="/" key="home">
             <HomeView />
-          </Route>,
-          <Route path="/users" key="users">
-            <UserListView />
-          </Route>,
-          <Route path="/timesheets" key="timesheets">
-            <TimeSheetContainer />
           </Route>,
         ]
       : [
@@ -36,15 +34,18 @@ class App extends React.Component {
         ];
 
     return (
-      <div className="App">
-        <ConnectedRouter history={history}>
-          <Switch>
-            {routes.map((route) => route)}
-            <Route path="/">
-              <Redirect to={{ pathname: "/" }} />
-            </Route>
-          </Switch>
-        </ConnectedRouter>
+      <div className="app">
+        <div className="appBanner">Toptal Time Sheet Evaluation Project</div>
+        <div className="appContent">
+          <ConnectedRouter history={history}>
+            <Switch>
+              {routes.map((route) => route)}
+              <Route path="/">
+                <Redirect to={{ pathname: "/" }} />
+              </Route>
+            </Switch>
+          </ConnectedRouter>
+        </div>
       </div>
     );
   }
