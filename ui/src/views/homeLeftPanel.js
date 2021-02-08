@@ -1,41 +1,37 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { connect } from "react-redux";
+
+//material-ui
 import { withStyles } from "@material-ui/core/styles";
-import MenuList from "@material-ui/core/MenuList";
-import MenuItem from "@material-ui/core/MenuItem";
-import Paper from "@material-ui/core/Paper";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import DraftsIcon from "@material-ui/icons/Drafts";
-import SendIcon from "@material-ui/icons/Send";
-import PriorityHighIcon from "@material-ui/icons/PriorityHigh";
-import PeopleIcon from "@material-ui/icons/People";
-import AccessTimeIcon from "@material-ui/icons/AccessTime";
-import SettingsIcon from "@material-ui/icons/Settings";
+import { MenuList, MenuItem, Paper, ListItemIcon } from "@material-ui/core";
+import { People as PeopleIcon, AccessTime as AccessTimeIcon, Settings as SettingsIcon } from "@material-ui/icons";
+
+//app modules
+import utils from "../framework/utils";
+import { getUserContext } from "../framework/userContext";
+
 const styles = {
   root: {
     width: 230,
     minHeight: "100%",
     backgroundColor: "#white",
-    //position: "fixed",
     "& .MuiListItem-root": {
       marginBottom: 10,
-      //marginLeft: 5,
     },
     "& .MuiListItemIcon-root": {
       minWidth: 35,
-      //marginLeft: 5,
     },
   },
 };
+/**
+ * Left Navigation Panel with links for timesheets, users
+ * Based on permissions shows/hides menu items
+ */
 class HomeLeftPanel extends React.Component {
-  isManagerUsersAllowed = (role) => {
-    return role === "m" || role === "a";
-  };
   render() {
-    const { role } = this.props.authContext;
+    const { role } = getUserContext();
     const { classes } = this.props;
-    const manageUsers = this.isManagerUsersAllowed(role);
+    const manageUsers = utils.isManagerOrAdmin(role);
 
     return (
       <div className="homeLeftPanel">
@@ -67,8 +63,4 @@ class HomeLeftPanel extends React.Component {
     );
   }
 }
-const mapStateToProps = (state, ownProps) => ({ authContext: state.authContext });
-
-const mapDispatchToProps = {};
-
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(HomeLeftPanel));
+export default withStyles(styles)(HomeLeftPanel);

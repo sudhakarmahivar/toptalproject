@@ -1,20 +1,20 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Button, Paper } from "@material-ui/core";
-import TextField from "@material-ui/core/TextField";
-import InputLabel from "@material-ui/core/InputLabel";
-import MenuItem from "@material-ui/core/MenuItem";
-import FormControl from "@material-ui/core/FormControl";
-import Select from "@material-ui/core/Select";
+import { withRouter } from "react-router-dom";
+//material-ui
+import { Select, FormControl, MenuItem, InputLabel, TextField, Button, Paper } from "@material-ui/core";
+import { withStyles } from "@material-ui/core/styles";
+import SaveIcon from "@material-ui/icons/Save";
+
+//app modules
 import { saveUser, registerUser } from "../controllers/userController";
-import { clearError } from "../controllers/errorController";
-import ServiceErrorView from "./ServiceErrorView";
+import { clearError } from "../controllers/serviceStatusController";
+import ServiceStatusView from "./serviceStatusView";
 import FormErrorView from "./FormErrorView";
 import validatePasswordSchema from "../framework/passwordValidator";
 import MessageDisplayView from "./MessageDisplayView";
-import { withRouter } from "react-router-dom";
-import { withStyles } from "@material-ui/core/styles";
-import SaveIcon from "@material-ui/icons/Save";
+import messages from "../messages";
+
 const styles = (theme) => ({
   root: {
     "& .MuiFormControl-root": {
@@ -22,10 +22,12 @@ const styles = (theme) => ({
     },
   },
 });
-
+/**
+ * Register new user
+ * Self registration : New user registration happens
+ * Registration  by manager, admin is supported
+ */
 class RegistrationView extends React.Component {
-  passwordSchema = null;
-
   constructor(props) {
     super(props);
     const editMode = !!props.user;
@@ -35,53 +37,24 @@ class RegistrationView extends React.Component {
       editMode,
       password2: null,
     };
+    props.clearError();
   }
+  //on any field change, assigns to state, and resets its corresponding error field
+  onFieldChange = ({ target }, field, errorField) => {
+    const { user } = this.state;
+    user[field] = target.value;
+    const newState = { user };
+    if (errorField) newState[errorField] = false;
+    this.setState(newState);
+  };
 
-  onUserNameChange = ({ target }) => {
-    const { user } = this.state;
-    user.userName = target.value;
-    this.setState({
-      user,
-      userNameError: false,
-    });
-  };
-  onPasswordChange = ({ target }) => {
-    const { user } = this.state;
-    user.password = target.value;
-    this.setState({
-      user,
-      passwordError: false,
-    });
-  };
   onPassword2Change = ({ target }) => {
     this.setState({
       password2: target.value,
       passwordError: false,
     });
   };
-  onNameChange = ({ target }) => {
-    const { user } = this.state;
-    user.name = target.value;
-    this.setState({
-      user,
-      nameError: false,
-    });
-  };
-  onEmailChange = ({ target }) => {
-    const { user } = this.state;
-    user.email = target.value;
-    this.setState({
-      user,
-      emailError: false,
-    });
-  };
-  handleRoleChange = ({ target }) => {
-    const { user } = this.state;
-    user.role = target.value;
-    this.setState({
-      user,
-    });
-  };
+
   /**
    * Validates password strength, matches
    * @param {*} password
@@ -89,25 +62,23 @@ class RegistrationView extends React.Component {
    */
   validatePassword = (password = "", password2 = "") => {
     if (password !== password2) {
-      return "Password mismatch";
+      return messages.passwordMismatch;
     }
     return validatePasswordSchema(password);
   };
   validateUserName = (userName = "") => {
-    return userName.length < 8 || !userName.match(/^[0-9a-z]+$/i)
-      ? "User name should be 8 characters in length and only alphanumeric"
+    return userName.length < 8 || userName.length > 25 || !userName.match(/^[0-9a-z]+$/i)
+      ? messages.userNameError
       : null;
   };
   validateName = (name = "") => {
-    return !name || name.length === 0 || !name.match(/^[0-9a-z\s]+$/i)
-      ? "Name is required and should have only alphabets and spaces"
-      : null;
+    return !name || name.length === 0 || name.length > 50 || !name.match(/^[0-9a-z\s]+$/i) ? messages.nameError : null;
   };
   validateEmail = (email = "") => {
     return !/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(email);
   };
   goBack = () => {
-    this.props.history.goBack();
+    (this.props.onCancel || this.props.history.goBack)();
   };
   onSubmit = (event) => {
     event.preventDefault();
@@ -123,13 +94,13 @@ class RegistrationView extends React.Component {
       passwordError = false,
       emailError = false,
       nameError = false;
-    if (this.validateName(user.name)) {
-      errors.push("Enter name with no special characters");
+    let error = this.validateName(user.name);
+    if (error) {
+      errors.push(error);
       nameError = true;
     }
-    console.log(errors);
     if (this.validateEmail(user.email)) {
-      errors.push("Provide valid email");
+      errors.push(messages.emailError);
       emailError = true;
     }
     let validationError = this.validateUserName(user.userName, errors);
@@ -162,23 +133,20 @@ class RegistrationView extends React.Component {
   render() {
     const { user, formErrors, password2, editMode, userNameError, emailError, nameError, passwordError } = this.state;
     let { allowRoleEdit, classes } = this.props;
-    let messages = [
-      "User name should be 8 characters in length and only alphanumeric",
-      "Password should be 8-25 chars length and should contain Upper case letter, number and digit",
-    ];
+    let instructions = [messages.userNameInstruction, messages.passwordInstruction];
     return (
       <div className="registrationView">
         <Paper className="paperWrapper">
           <div className={classes.root}>
             <form className="registrationForm" noValidate autoComplete="off" onSubmit={this.onSubmit}>
-              <MessageDisplayView messages={messages} />
+              <MessageDisplayView messages={instructions} />
               <div>
                 <TextField
                   required
                   id="name"
                   label="Name"
                   error={nameError}
-                  onChange={this.onNameChange}
+                  onChange={(e) => this.onFieldChange(e, "name", "nameError")}
                   value={user.name}
                   fullWidth={true}
                 />
@@ -187,7 +155,7 @@ class RegistrationView extends React.Component {
                   id="email"
                   label="Email"
                   error={emailError}
-                  onChange={this.onEmailChange}
+                  onChange={(e) => this.onFieldChange(e, "email", "emailError")}
                   value={user.email}
                   fullWidth={true}
                 />
@@ -196,7 +164,7 @@ class RegistrationView extends React.Component {
                   id="userName"
                   label="User Name"
                   error={userNameError}
-                  onChange={this.onUserNameChange}
+                  onChange={(e) => this.onFieldChange(e, "userName", "userNameError")}
                   value={user.userName}
                   fullWidth={true}
                 />
@@ -210,7 +178,7 @@ class RegistrationView extends React.Component {
                       required
                       label="Password"
                       type="password"
-                      onChange={this.onPasswordChange}
+                      onChange={(e) => this.onFieldChange(e, "password", "passwordError")}
                       value={user.password}
                       error={passwordError}
                       fullWidth={true}
@@ -237,7 +205,7 @@ class RegistrationView extends React.Component {
                     labelId="demo-simple-select-label"
                     id="role"
                     value={user.role}
-                    onChange={this.handleRoleChange}
+                    onChange={(e) => this.onFieldChange(e, "role", "roleError")}
                     defaultValue={"u"}
                     fullWidth={true}
                   >
@@ -247,7 +215,7 @@ class RegistrationView extends React.Component {
                   </Select>
                 </FormControl>
               )}
-              <ServiceErrorView />
+              <ServiceStatusView />
               <FormErrorView messages={formErrors} />
 
               <div className="actionPanel">
@@ -265,12 +233,10 @@ class RegistrationView extends React.Component {
     );
   }
 }
-const mapStateToProps = (state, ownProps) => ({});
-
 const mapDispatchToProps = {
   registerUser,
   saveUser,
   clearError,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(withRouter(withStyles(styles)(RegistrationView)));
+export default connect(null, mapDispatchToProps)(withRouter(withStyles(styles)(RegistrationView)));

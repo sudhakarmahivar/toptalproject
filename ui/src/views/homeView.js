@@ -1,14 +1,16 @@
 import React from "react";
-import { connect } from "react-redux";
-import { Switch, Route, Redirect } from "react-router-dom";
-import UserListView from "./userListView";
-import TimeSheetContainer from "./timeSheetContainer";
+import { Switch, Route } from "react-router-dom";
+//material-ui
 import { withStyles } from "@material-ui/core/styles";
-
+//app modules
+import TimeSheetContainer from "./timeSheetContainer";
 import PreferencesView from "./preferencesView";
 import HomeLeftPanel from "./homeLeftPanel";
 import PageHeaderView from "./pageHeaderView";
 import { getUserContext } from "../framework/userContext";
+import UserListView from "./userListView";
+import utils from "../framework/utils";
+
 const styles = {
   root: {
     display: "flex",
@@ -17,21 +19,22 @@ const styles = {
     width: "100%",
   },
   homeContent: {
-    //marginLeft: 230,
     paddingLeft: 50,
     paddingRight: 50,
     flexGrow: 1,
   },
 };
-class HomeView extends React.Component {
-  isManagerUsersAllowed = (role) => {
-    return role === "m" || role === "a";
-  };
+/**
+ * Container for authorized app view
+ * Loads Timesheet List, User List, Preferences view
+ */
+export class HomeView extends React.Component {
   render() {
-    const { role } = this.props.authContext;
-    const { classes } = this.props;
-    const manageUsers = this.isManagerUsersAllowed(role);
     const user = getUserContext();
+    const role = user.role;
+    const { classes } = this.props;
+    const manageUsers = utils.isManagerOrAdmin(role);
+
     return (
       <div className={classes.root}>
         <HomeLeftPanel />
@@ -65,8 +68,4 @@ class HomeView extends React.Component {
     );
   }
 }
-const mapStateToProps = (state, ownProps) => ({ authContext: state.authContext });
-
-const mapDispatchToProps = {};
-
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(HomeView));
+export default withStyles(styles)(HomeView);

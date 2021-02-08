@@ -11,7 +11,6 @@ module.exports = function (req, res, next) {
   }
   try {
     const token = req.headers.authorization.replace(/^bearer/gi, "").replace(" ", ""); //token excluding bearer and trim any spaces
-    logger.debug(token, config.authSecret);
     var user = jwt.verify(token, config.authSecret);
 
     logger.debug(user);

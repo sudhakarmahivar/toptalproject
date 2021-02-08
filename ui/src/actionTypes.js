@@ -10,9 +10,12 @@ const actionTypes = {
     begin: "editUserBegin",
     end: "editUserEnd",
   },
-  error: {
-    setError: "setError",
-    clearError: "clearError",
+  serviceStatus: {
+    setSuccess: "setServiceStatusSuccess",
+    setError: "setServiceStatusError",
+    clearError: "clearErrorMessages",
+    clearSuccess: "ClearSuccessMessages",
+    clearAll: "clearAllServiceMessages",
   },
   registration: {
     redirectOnSuccess: "redirectOnSuccessRegistration",

@@ -1,29 +1,23 @@
 import React from "react";
 import { connect } from "react-redux";
+import DateFnsUtils from "@date-io/date-fns";
+import moment from "moment";
+//material-ui
+import AddIcon from "@material-ui/icons/Add";
+import SearchIcon from "@material-ui/icons/Search";
+import { Paper, Select, FormControl, MenuItem, Button, InputLabel } from "@material-ui/core";
+import { MuiPickersUtilsProvider, KeyboardDatePicker } from "@material-ui/pickers";
+import { withStyles } from "@material-ui/core/styles";
+//ag-grid
 import { AgGridReact, SortableHeaderComponent } from "ag-grid-react";
 import "ag-grid-community/dist/styles/ag-grid.css";
 import "ag-grid-community/dist/styles/ag-theme-alpine.css";
+//app modules
 import { getTimeSheets, showDayTimeSheet } from "../controllers/timeSheetController";
 import { getUsers } from "../controllers/userController";
 import PageHeaderView from "./pageHeaderView";
-
-import Button from "@material-ui/core/Button";
-import DateFnsUtils from "@date-io/date-fns";
-import { MuiPickersUtilsProvider, KeyboardDatePicker } from "@material-ui/pickers";
-import TextField from "@material-ui/core/TextField";
-import InputLabel from "@material-ui/core/InputLabel";
-import MenuItem from "@material-ui/core/MenuItem";
-import FormControl from "@material-ui/core/FormControl";
-import Select from "@material-ui/core/Select";
-import SearchIcon from "@material-ui/icons/Search";
-
-import moment from "moment";
 import { getUserContext } from "../framework/userContext";
-import { Paper } from "@material-ui/core";
-/**
- * Displays all users
- */
-import { withStyles } from "@material-ui/core/styles";
+import utils from "../framework/utils";
 
 const styles = (theme) => ({
   searchPanel: {
@@ -39,6 +33,7 @@ const styles = (theme) => ({
   resultsSummary: {
     marginTop: 5,
     marginBottom: 5,
+    fontSize: "small",
   },
   userSelector: {
     width: 250,
@@ -46,18 +41,26 @@ const styles = (theme) => ({
   button: {
     margin: theme.spacing(1),
   },
+  gridHeader: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
 });
+/**
+ * Displays Timesheets, with feature to see other user timesheets, search date range
+ */
 
 export class TimeSheetListView extends React.Component {
   columnDefs = [];
   constructor(props) {
     super(props);
 
+    const userContext = getUserContext();
     this.state = {
-      fromDate: moment().subtract(6, "days").startOf("day").format("YYYY-MM-DD"),
-      toDate: moment().format("YYYY-MM-DD"),
-      userId: props.userId || getUserContext().userId,
-      workingHoursPerDay: Number(getUserContext().workingHoursPerDay),
+      fromDate: props.fromDate || utils.getFormattedDate(moment().subtract(6, "days").startOf("day")),
+      toDate: props.toDate || utils.getFormattedDate(),
+      userId: props.userId || userContext.userId,
     };
 
     this.columnDefs.push({
@@ -70,49 +73,56 @@ export class TimeSheetListView extends React.Component {
     });
   }
   componentDidMount() {
-    this.onSearch(); //invoke search with default parameter
+    this.searchTimeSheets(); //invoke search with default parameter
     this.props.getUsers(); //get list of users
   }
+
   onDateChange = (field, date) => {
     this.setState({
-      [field]: moment(date).format("YYYY-MM-DD"),
+      [field]: utils.getFormattedDate(date),
     });
   };
-  onSearch = () => {
+  onSearchClick = () => {
+    this.searchTimeSheets();
+  };
+  searchTimeSheets = (userIdInput) => {
     const { userId, fromDate, toDate } = this.state;
-    this.props.getTimeSheets(fromDate, toDate, userId);
+    this.props.getTimeSheets(fromDate, toDate, userIdInput || userId);
+  };
+  addTimeSheet = () => {
+    //default to today's date
+    this.props.showDayTimeSheet(utils.getFormattedDate(), this.state.userId);
   };
   onDaySelect = ({ data }) => {
-    this.props.showDayTimeSheet(data.date);
+    this.props.showDayTimeSheet(data.date, this.state.userId);
   };
   onUserSelect = ({ target }) => {
     this.setState({
       userId: target.value,
     });
+    this.searchTimeSheets(target.value);
   };
   onGridReady = (params) => {
     params.api.sizeColumnsToFit();
   };
   render() {
     const { timeSheets, users, classes } = this.props;
-    //const { confirmationMessage, deleteConfirmationOpen } = this.state;
-    //const { editDialogOpen, editUser } = this.state;
-
     const sortedUsers = users.sort((a, b) => {
       return a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1;
     });
 
-    const { fromDate, toDate, userId } = this.state;
-    const name = (users.find((user) => user.userId === userId) || {}).name;
-
+    const { fromDate, toDate, userId } = this.state; //current user selected stuff
+    const { fromDate: resultFromDate, toDate: resultToDate, userId: resultUserId } = this.props;
+    const name = (users.find((user) => user.userId === resultUserId) || {}).name;
+    const showSelectUser = utils.isManagerOrAdmin(getUserContext().role);
+    const maxDate = new Date(),
+      minDate = moment().subtract(1, "year").toDate();
     return (
       <div className="timeSheetListView">
-        <PageHeaderView
-          title={`Manage Timesheets`}
-          subtitle={"Search timesheets through date range. Click on any of the timesheet to open activity details page"}
-        />
-        <Paper className="paperWrapper">
-          <div className={classes.searchPanel}>
+        <PageHeaderView title={`Manage Timesheets`} />
+
+        {showSelectUser && (
+          <Paper className="paperWrapper">
             <FormControl className={classes.userSelector}>
               <InputLabel id="demo-simple-select-label">Select User</InputLabel>
               <Select labelId="demo-simple-select-label" id="user" value={userId} onChange={this.onUserSelect}>
@@ -123,6 +133,11 @@ export class TimeSheetListView extends React.Component {
                 ))}
               </Select>
             </FormControl>
+          </Paper>
+        )}
+
+        <Paper className="paperWrapper">
+          <div className={classes.searchPanel}>
             <MuiPickersUtilsProvider utils={DateFnsUtils}>
               <KeyboardDatePicker
                 disableToolbar
@@ -136,6 +151,9 @@ export class TimeSheetListView extends React.Component {
                 KeyboardButtonProps={{
                   "aria-label": "change from date",
                 }}
+                maxDate={maxDate}
+                minDate={minDate}
+                autoOk={true}
               />
               <KeyboardDatePicker
                 disableToolbar
@@ -149,6 +167,9 @@ export class TimeSheetListView extends React.Component {
                 KeyboardButtonProps={{
                   "aria-label": "change from date",
                 }}
+                maxDate={maxDate}
+                minDate={minDate}
+                autoOk={true}
               />
             </MuiPickersUtilsProvider>
 
@@ -157,20 +178,31 @@ export class TimeSheetListView extends React.Component {
               color="primary"
               className={classes.button}
               startIcon={<SearchIcon />}
-              onClick={this.onSearch}
+              onClick={this.onSearchClick}
             >
               Search
             </Button>
           </div>
         </Paper>
-        <div className={classes.resultsSummary}>
-          Displaying Timesheets of {name} for period {fromDate} to {toDate}
+        <div className={classes.gridHeader}>
+          <div className={classes.resultsSummary}>
+            Displaying Timesheets of {name} for period {resultFromDate} to {resultToDate}
+          </div>
+          <Button
+            variant="contained"
+            color="primary"
+            className={classes.button}
+            onClick={this.addTimeSheet}
+            startIcon={<AddIcon />}
+          >
+            Add Timesheet
+          </Button>
         </div>
         <div
           className="ag-theme-alpine"
           style={{
-            height: "800px",
-            width: "800px",
+            height: "100%",
+            width: "100%",
           }}
         >
           <AgGridReact
@@ -185,7 +217,6 @@ export class TimeSheetListView extends React.Component {
               lowWorkingHours: (params) => {
                 return params.data.hours < getUserContext().workingHoursPerDay;
               },
-              "sick-days-breach": "data.sickDays >= 8",
             }}
             // setting default column properties
             defaultColDef={{
@@ -203,10 +234,9 @@ export class TimeSheetListView extends React.Component {
     );
   }
 }
-const mapStateToProps = (state, ownProps) => {
+const mapStateToProps = (state) => {
   // group activities by date
-
-  let timeSheets = state.timeSheetList.timeSheets;
+  let { timeSheets, fromDate, toDate, userId } = state.timeSheetList;
   const users = state.userList.users;
   let uniqDates = [...new Set(timeSheets.map((ts) => ts.date))];
   let timeSheetSummary = [];
@@ -218,9 +248,8 @@ const mapStateToProps = (state, ownProps) => {
     timeSheetSummary.push({ date: uniqDate, hours: dailyHours });
   });
 
-  return { timeSheets: timeSheetSummary, users };
+  return { timeSheets: timeSheetSummary, users, fromDate, toDate, userId };
 };
 
 const mapDispatchToProps = { getTimeSheets, getUsers, showDayTimeSheet };
-
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(TimeSheetListView));

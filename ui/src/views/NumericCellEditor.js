@@ -1,3 +1,9 @@
+/**
+ * Grid - Inline editor for number
+ * Sourced from ag-grid site example
+ * @param {*} min
+ * @param {*} max
+ */
 export default function getNumericCellEditor(min, max) {
   function isCharNumeric(charStr) {
     return !!/\d/.test(charStr);
@@ -33,14 +39,11 @@ export default function getNumericCellEditor(min, max) {
     this.eInput.value = isCharNumeric(params.charPress) ? params.charPress : params.value;
 
     var that = this;
-    this.eInput.addEventListener("xkeypress", function (event) {
+    this.eInput.addEventListener("keypress", function (event) {
       if (!isKeyPressedNumeric(event)) {
         that.eInput.focus();
         if (event.preventDefault) event.preventDefault();
       }
-    });
-    this.eInput.addEventListener("xchange", function (event) {
-      console.log(event.target.value);
     });
   };
 
@@ -79,12 +82,6 @@ export default function getNumericCellEditor(min, max) {
     var eInput = this.getGui();
     eInput.focus();
     eInput.select();
-  };
-
-  // when we tab out of the editor, this gets called
-  NumericCellEditor.prototype.focusOut = function () {
-    // but we don't care, we just want to print it for demo purposes
-    console.log("NumericCellEditor.focusOut()");
   };
 
   return NumericCellEditor;

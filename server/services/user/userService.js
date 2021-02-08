@@ -41,7 +41,6 @@ class UserService {
   //
   validateModel(userModel, skipPasswordCheck = false) {
     const { userName, password, name, workingHoursPerDay, email } = userModel;
-    console.log("Validating:" + skipPasswordCheck);
     if (!userName) throw new ValidationError(errorMessages.userNameError);
 
     //values sent

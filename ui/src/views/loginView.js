@@ -1,11 +1,15 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Button, Paper } from "@material-ui/core";
-import TextField from "@material-ui/core/TextField";
-import { authenticate } from "../controllers/loginController";
 import { Link } from "react-router-dom";
-import ServiceErrorView from "./ServiceErrorView";
+
+//material-ui
+import { Button, Paper, TextField } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
+
+//app modules
+import { authenticate } from "../controllers/loginController";
+import ServiceStatusView from "./serviceStatusView";
+import { clearError } from "../controllers/serviceStatusController";
 
 const styles = (theme) => ({
   root: {
@@ -14,55 +18,54 @@ const styles = (theme) => ({
     },
   },
 });
+/**
+ * Login View. Does username , password authentication
+ */
 class LoginView extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      name: null,
+      userName: null,
       password: null,
-      nameError: false,
+      userNameError: false,
       passwordError: false,
     };
+    props.clearError();
   }
-  onNameChange = ({ target }) => {
+  onFieldChange = ({ target }, field) => {
     this.setState({
-      name: target.value,
+      [field]: target.value,
     });
   };
-  onPasswordChange = ({ target }) => {
-    this.setState({
-      password: target.value,
-    });
-  };
-
   onSubmit = (event) => {
     event.preventDefault(); //stop reloading of page
-    const { name, password } = this.state;
+    const { userName, password } = this.state;
     const { authenticate } = this.props;
 
-    let nameError = false,
+    let userNameError = false,
       passwordError = false;
-    if (!name) nameError = true;
+    if (!userName) userNameError = true;
     if (!password) passwordError = true;
-    this.setState({ nameError, passwordError });
-    if (nameError || passwordError) return;
-    authenticate(name, password);
+    this.setState({ userNameError, passwordError });
+    if (userNameError || passwordError) return;
+    authenticate(userName, password);
   };
   render() {
-    const { nameError, passwordError } = this.state;
+    const { userNameError, passwordError } = this.state;
     const { classes } = this.props;
     return (
       <div className="loginView">
         <Paper className="paperWrapper">
+          <ServiceStatusView successOnly />
           <form className={classes.root} noValidate autoComplete="off" onSubmit={this.onSubmit}>
             <div>
               <TextField
                 required
                 id="userName"
                 fullWidth={true}
-                error={nameError}
+                error={userNameError}
                 label="User Name"
-                onChange={this.onNameChange}
+                onChange={(e) => this.onFieldChange(e, "userName")}
               />
             </div>
             <div>
@@ -73,11 +76,11 @@ class LoginView extends React.Component {
                 label="Password"
                 type="password"
                 fullWidth={true}
-                onChange={this.onPasswordChange}
+                onChange={(e) => this.onFieldChange(e, "password")}
               />
             </div>
             <div>
-              <ServiceErrorView />
+              <ServiceStatusView />
             </div>
             <div className="actionPanel">
               <Button variant="contained" color="primary" type="submit" className="loginButton">
@@ -91,8 +94,9 @@ class LoginView extends React.Component {
     );
   }
 }
-const mapStateToProps = (state, ownProps) => ({});
+
 const mapDispatchToProps = {
   authenticate,
+  clearError,
 };
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(LoginView));
+export default connect(null, mapDispatchToProps)(withStyles(styles)(LoginView));

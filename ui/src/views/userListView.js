@@ -1,30 +1,38 @@
 import React from "react";
 import { connect } from "react-redux";
-import { AgGridReact, SortableHeaderComponent } from "ag-grid-react";
-import "ag-grid-community/dist/styles/ag-grid.css";
-import "ag-grid-community/dist/styles/ag-theme-alpine.css";
-import { getUsers, deleteUser } from "../controllers/userController";
-import PageHeaderView from "./pageHeaderView";
-
-import IconButton from "@material-ui/core/IconButton";
-import Button from "@material-ui/core/Button";
+//material-ui
+import { Button, IconButton } from "@material-ui/core";
 import EditIcon from "@material-ui/icons/Edit";
 import DeleteIcon from "@material-ui/icons/Delete";
-import ConfirmationDialogView from "./ConfirmationDialogView";
-//import RegistrationDialogView from "./RegistrationDialogView";
-import WithDialogView from "./WithDialogView";
-import RegistrationView from "./registrationView";
 import AddIcon from "@material-ui/icons/Add";
 import { withStyles } from "@material-ui/core/styles";
 
-/**
- * Displays all users
- */
+//ag-grid
+import { AgGridReact, SortableHeaderComponent } from "ag-grid-react";
+import "ag-grid-community/dist/styles/ag-grid.css";
+import "ag-grid-community/dist/styles/ag-theme-alpine.css";
+
+//app-modules
+import { getUsers, deleteUser } from "../controllers/userController";
+import PageHeaderView from "./pageHeaderView";
+import ConfirmationDialogView from "./ConfirmationDialogView";
+import WithDialogView from "./WithDialogView";
+import RegistrationView from "./registrationView";
+import ServiceStatusView from "./serviceStatusView";
+
 const styles = (theme) => ({
   button: {
     margin: theme.spacing(1),
   },
+  gridHeader: {
+    display: "flex",
+    justifyContent: "flex-start",
+    alignItems: "center",
+  },
 });
+/**
+ * Displays all users
+ */
 export class UserListView extends React.Component {
   columnDefs = [];
   constructor(props) {
@@ -164,15 +172,18 @@ export class UserListView extends React.Component {
     return (
       <div className="userListView">
         <PageHeaderView title={`Manage Users`} subtitle={"You can edit, delete users from here"} />
-        <Button
-          variant="contained"
-          color="primary"
-          className={classes.button}
-          onClick={this.onCreateUser}
-          startIcon={<AddIcon />}
-        >
-          Add User
-        </Button>
+        <div className={classes.gridHeader}>
+          <Button
+            variant="contained"
+            color="primary"
+            className={classes.button}
+            onClick={this.onCreateUser}
+            startIcon={<AddIcon />}
+          >
+            Add User
+          </Button>
+          <ServiceStatusView successOnly />
+        </div>
         <div
           className="ag-theme-alpine"
           style={{
@@ -204,7 +215,7 @@ export class UserListView extends React.Component {
           ></AgGridReact>
         </div>
         <WithDialogView open={editDialogOpen} onClose={this.closeDialog} title={dialogTitle}>
-          <RegistrationView user={editUser} allowRoleEdit onSuccess={this.closeDialog} />
+          <RegistrationView user={editUser} allowRoleEdit onSuccess={this.closeDialog} onCancel={this.closeDialog} />
         </WithDialogView>
         <ConfirmationDialogView
           open={deleteConfirmationOpen}

@@ -1,17 +1,17 @@
 import actionTypes from "../actionTypes";
 
 const initialState = {
-  users: [],
+  users: [], //list of users ( drop down display in timesheet list view)
 };
 
 function userListReducer(state = initialState, action = {}) {
   if (action.type === actionTypes.userList.refreshed) {
     return {
       ...state,
-      // and update the copy with the new value
       users: action.data,
     };
   }
+  //When new user registered add the users to the list
   if (action.type === actionTypes.registration.registrationSucceeded) {
     const users = [...state.users];
     users.push(action.data);
@@ -21,8 +21,8 @@ function userListReducer(state = initialState, action = {}) {
       users,
     };
   }
+  //On update refresh user
   if (action.type === actionTypes.userList.updateUser) {
-    //refresh userList
     const user = action.data;
     const users = [...state.users];
     const existingUserIndex = users.findIndex((u) => u.userId === user.userId);
@@ -36,8 +36,8 @@ function userListReducer(state = initialState, action = {}) {
       users,
     };
   }
+  //remove user, when deleted
   if (action.type === actionTypes.userList.deleteUser) {
-    //refresh userList
     const userId = action.data;
     let users = state.users.filter((user) => user.userId !== userId);
     return {

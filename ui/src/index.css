@@ -57,14 +57,17 @@ code {
 }
 
 div.formErrorView,
-div.serviceErrorView {
+div.serviceStatusView {
   background-color: lightyellow;
   font-size: small;
   padding: 10px 10px 10px 10px;
   margin-top: 5px;
   margin-bottom: 10px;
 }
-div.serviceErrorView {
+div.serviceSuccess {
+  background-color: lightgreen;
+}
+.serviceError {
   color: red;
 }
 .timeSheetContainer {

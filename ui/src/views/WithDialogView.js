@@ -1,9 +1,7 @@
 import React from "react";
-import Dialog from "@material-ui/core/Dialog";
-import DialogContent from "@material-ui/core/DialogContent";
+
 import { withStyles } from "material-ui/styles";
-import DialogContentText from "@material-ui/core/DialogContentText";
-import DialogTitle from "@material-ui/core/DialogTitle";
+import { DialogTitle, DialogContentText, DialogContent, Dialog } from "@material-ui/core";
 
 const styles = {
   dialogPaper: {
@@ -11,6 +9,9 @@ const styles = {
     maxHeight: "80vh",
   },
 };
+/**
+ * HOC Component - Wraps child component in dialog
+ */
 class WithDialogView extends React.Component {
   render() {
     const { open, classes, onClose, children, title, subtitle } = this.props;

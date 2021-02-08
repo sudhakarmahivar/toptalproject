@@ -12,6 +12,9 @@ const styles = {
     marginBottom: 30,
   },
 };
+/**
+ * Display Page title and subtitle
+ */
 export class PageHeaderView extends React.Component {
   render() {
     const { title, subtitle, classes } = this.props;

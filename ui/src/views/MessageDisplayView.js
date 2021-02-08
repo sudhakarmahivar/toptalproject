@@ -1,5 +1,8 @@
 import React from "react";
-
+/**
+ * Displays instructions, messages , information
+ * Uses in top of pages/forms to instruct users
+ */
 class MessageDisplayView extends React.Component {
   render() {
     const { messages } = this.props;

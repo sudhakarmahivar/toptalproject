@@ -10,6 +10,7 @@ router.post("/register", async function (req, res, next) {
     res.status(200).json(result);
     next && next();
   } catch (err) {
+    console.log(err);
     next(err);
   }
 });
@@ -17,6 +18,16 @@ router.post("/login", async function (req, res, next) {
   try {
     let service = new UserService();
     let result = await service.login(req.body);
+    res.status(200).json(result);
+    next && next();
+  } catch (err) {
+    next(err);
+  }
+});
+router.post("/logout", async function (req, res, next) {
+  try {
+    let service = new UserService();
+    let result = await service.logout();
     res.status(200).json(result);
     next && next();
   } catch (err) {

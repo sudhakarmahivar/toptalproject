@@ -4,27 +4,28 @@ import { connect } from "react-redux";
 import LoginView from "./views/loginView";
 import HomeView from "./views/homeView";
 import RegistrationView from "./views/registrationView";
-import UserListView from "./views/userListView";
 import { Switch, Route, Redirect } from "react-router-dom";
 import { ConnectedRouter } from "connected-react-router";
 import { history } from "./store";
-import TimeSheetContainer from "./views/timeSheetContainer";
-import PreferencesView from "./views/preferencesView";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import Typography from "@material-ui/core/Typography";
-import Container from "@material-ui/core/Container";
+/**
+ * Main React App.
+ * Create Sketon structure of header + content.
+ * Routes based on auth status to either home, login or registration page
+ */
 
-class App extends React.Component {
+export class App extends React.Component {
   render() {
     const { authContext } = this.props;
     const loggedIn = !!authContext.accessToken;
     const routes = loggedIn
       ? [
+          //logged in routes
           <Route path="/" key="home">
             <HomeView />
           </Route>,
         ]
       : [
+          //anonymous routes
           <Route exact path="/" key="login">
             <LoginView />
           </Route>,
@@ -35,7 +36,7 @@ class App extends React.Component {
 
     return (
       <div className="app">
-        <div className="appBanner">Toptal Time Sheet Evaluation Project</div>
+        <div className="appBanner">Toptal Time Sheet Project</div>
         <div className="appContent">
           <ConnectedRouter history={history}>
             <Switch>

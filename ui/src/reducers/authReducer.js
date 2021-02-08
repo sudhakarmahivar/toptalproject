@@ -1,5 +1,9 @@
 import actionTypes from "../actionTypes";
 
+/**
+ * Reduces authContext redux state
+ * Holds current logged in user detail
+ */
 const initialState = {
   userId: null,
   userName: null,
@@ -11,12 +15,22 @@ const initialState = {
 };
 
 function authReducer(state = initialState, action = {}) {
-  // otherwise return the existing state unchanged
+  //on authentication success
   if (action.type === actionTypes.auth.authSucceeded) {
     return {
       ...state,
       ...action.data,
     };
+  }
+  if (action.type === actionTypes.userList.updateUser) {
+    const user = action.data;
+    if (user.userId === state.userId) {
+      //current logged in user.Update details such as workingHoursPerDay, role etc
+      return {
+        ...state,
+        ...action.data,
+      };
+    }
   }
   return state;
 }

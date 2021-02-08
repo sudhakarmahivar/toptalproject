@@ -1,23 +1,21 @@
 import { composeWithDevTools } from "redux-devtools-extension";
 import authReducer from "./reducers/authReducer";
-import errorReducer from "./reducers/errorReducer";
 import editUserReducer from "./reducers/editUserReducer";
 import userListReducer from "./reducers/userListReducer";
-import registrationReducer from "./reducers/registrationReducer";
 import timeSheetListReducer from "./reducers/timeSheetListReducer";
 
 import thunk from "redux-thunk";
 import { createStore, applyMiddleware, combineReducers } from "redux";
 import { connectRouter, routerMiddleware } from "connected-react-router";
 import { createBrowserHistory } from "history";
+import serviceStatusReducer from "./reducers/serviceStatusReducer";
 export const history = createBrowserHistory();
 
 const rootReducer = combineReducers({
   authContext: authReducer,
   userList: userListReducer,
-  error: errorReducer,
+  serviceStatus: serviceStatusReducer,
   editUser: editUserReducer,
-  registration: registrationReducer,
   timeSheetList: timeSheetListReducer,
   router: connectRouter(history),
 });

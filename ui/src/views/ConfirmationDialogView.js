@@ -17,18 +17,15 @@ const styles = {
     maxHeight: "80vh",
   },
 };
-
+/**
+ * Confirmation Dialog for delete and other critical actions
+ */
 export class ConfirmationDialogView extends React.Component {
   render() {
     const { open, title, message, okText = "OK", cancelText = "Cancel", okHandler, cancelHandler } = this.props;
     return (
       <div className="confirmationDialogView">
-        <Dialog
-          open={open}
-          onClose={() => console.log("onclose")}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
+        <Dialog open={open} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
           <DialogTitle id="alert-dialog-title">{title}</DialogTitle>
           <DialogContent>
             <DialogContentText id="alert-dialog-description">{message}</DialogContentText>

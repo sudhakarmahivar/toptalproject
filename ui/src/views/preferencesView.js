@@ -1,29 +1,32 @@
 import React from "react";
 import { connect } from "react-redux";
-import { Button, Paper } from "@material-ui/core";
-import TextField from "@material-ui/core/TextField";
-import { saveUser } from "../controllers/userController";
-import ServiceErrorView from "./ServiceErrorView";
-import { getUserContext } from "../framework/userContext";
-import PageHeaderView from "./pageHeaderView";
-import { withStyles } from "@material-ui/core/styles";
-import SaveIcon from "@material-ui/icons/Save";
-import FormErrorView from "./FormErrorView";
 
-/**
- * Displays all users
- */
+//material-ui
+import { TextField, Button, Paper } from "@material-ui/core";
+import { withStyles } from "@material-ui/core/styles";
+
+//app modules
+import { saveUser } from "../controllers/userController";
+import ServiceStatusView from "./serviceStatusView";
+import PageHeaderView from "./pageHeaderView";
+import SaveIcon from "@material-ui/icons/Save";
+import { clearError } from "../controllers/serviceStatusController";
+
 const styles = (theme) => ({
   button: {
     margin: theme.spacing(1),
   },
 });
+/**
+ * Displays User Preference
+ */
 class PreferencesView extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       workingHoursPerDay: this.props.user.workingHoursPerDay,
     };
+    props.clearError();
   }
   onWorkingHoursChange = (event) => {
     const hours = Number(event.target.value);
@@ -43,7 +46,6 @@ class PreferencesView extends React.Component {
   render() {
     const { workingHoursPerDay } = this.state;
     const { classes } = this.props;
-    console.log(workingHoursPerDay, "workingHoursPerDay");
     return (
       <div className="preferencesView">
         <PageHeaderView title={`Edit Preferences`} subtitle="Set your preferences here" />
@@ -59,9 +61,7 @@ class PreferencesView extends React.Component {
               value={workingHoursPerDay}
               onChange={this.onWorkingHoursChange}
             />
-
-            <ServiceErrorView />
-
+            <ServiceStatusView />
             <div className="actionPanel">
               <Button
                 variant="contained"
@@ -73,16 +73,18 @@ class PreferencesView extends React.Component {
                 Save
               </Button>
             </div>
+            <ServiceStatusView successOnly />
           </form>
         </Paper>
       </div>
     );
   }
 }
-const mapStateToProps = (state, ownProps) => {
-  return { user: getUserContext() };
+const mapStateToProps = (state) => {
+  return { user: state.authContext };
 };
 const mapDispatchToProps = {
   saveUser,
+  clearError,
 };
 export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(PreferencesView));

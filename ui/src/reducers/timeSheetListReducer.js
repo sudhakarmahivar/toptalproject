@@ -1,11 +1,11 @@
 import actionTypes from "../actionTypes";
 
 const initialState = {
-  userId: null,
-  fromDate: null,
-  toDate: null,
-  timeSheets: [],
-  date: null,
+  userId: null, //User for which timeSheetList is displayed
+  fromDate: null, //search -fromDate parameter
+  toDate: null, //search - toDate parameter
+  timeSheets: [], //result for userId,fromDate, toDate search
+  date: null, //single date timesheet being displayed
 };
 
 function timeSheetListReducer(state = initialState, action = {}) {
@@ -18,7 +18,7 @@ function timeSheetListReducer(state = initialState, action = {}) {
   if (action.type === actionTypes.timeSheetList.showDayTimeSheet) {
     return {
       ...state,
-      date: action.data,
+      ...action.data,
     };
   }
   if (action.type === actionTypes.timeSheetList.addTimeSheets) {
@@ -28,6 +28,7 @@ function timeSheetListReducer(state = initialState, action = {}) {
     };
   }
   if (action.type === actionTypes.timeSheetList.updateTimeSheets) {
+    //Replace existing timesheet with action.data
     let timeSheets = [...state.timeSheets];
     let updatedSheets = action.data;
     updatedSheets.forEach((us) => {
@@ -39,7 +40,9 @@ function timeSheetListReducer(state = initialState, action = {}) {
       timeSheets,
     };
   }
+
   if (action.type === actionTypes.timeSheetList.deleteTimeSheets) {
+    //filter out deleted timesheets from the state
     let timeSheets = [...state.timeSheets];
     let deletedSheets = action.data;
     timeSheets = timeSheets.filter((ts) => !deletedSheets.find((ds) => ds.timeSheetId === ts.timeSheetId));

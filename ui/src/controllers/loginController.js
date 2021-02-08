@@ -2,9 +2,9 @@ import AuthApi from "../api/authApi";
 import actionTypes from "../actionTypes";
 import errorHandler from "../framework/errorHandler";
 /**
- * Do username , password authentications
+ * Authenticates user and sets user to redux on success
  * @param {string} userName
- * @param {string} password
+ * @param {string} password password in plain text
  */
 function authenticate(userName, password) {
   return async function (dispatch) {
@@ -20,9 +20,5 @@ function authenticate(userName, password) {
     }
   };
 }
-/**
- * New user registration. Once successfully added takes user to login page
- * @param {object} user
- */
 
 export { authenticate };
