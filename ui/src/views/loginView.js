@@ -1,6 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
+import PropTypes from "prop-types";
 
 //material-ui
 import { Button, Paper, TextField } from "@material-ui/core";
@@ -21,7 +22,17 @@ const styles = (theme) => ({
 /**
  * Login View. Does username , password authentication
  */
-class LoginView extends React.Component {
+export class LoginView extends React.Component {
+  static propTypes = {
+    authenticate: PropTypes.func,
+    clearError: PropTypes.func,
+    classes: PropTypes.object,
+  };
+  static defaultProps = {
+    authenticate: () => {},
+    clearError: () => {},
+    classes: {},
+  };
   constructor(props) {
     super(props);
     this.state = {
@@ -32,6 +43,7 @@ class LoginView extends React.Component {
     };
     props.clearError();
   }
+
   onFieldChange = ({ target }, field) => {
     this.setState({
       [field]: target.value,

@@ -1,14 +1,14 @@
 import BaseApi from "./baseApi";
 import config from "../config";
 class AuthApi extends BaseApi {
-  authenticate = async (userName, password) => {
+  async authenticate(userName, password) {
     return this.apiClient.post(config.apiEndPoints.login, {
       userName,
       password,
     });
-  };
-  logout = async () => {
+  }
+  async logout() {
     return this.apiClient.post(config.apiEndPoints.logout);
-  };
+  }
 }
 export default AuthApi;

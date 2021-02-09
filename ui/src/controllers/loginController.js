@@ -15,6 +15,7 @@ function authenticate(userName, password) {
         type: actionTypes.auth.authSucceeded,
         data,
       });
+      return data;
     } catch (err) {
       errorHandler(err);
     }
@@ -24,10 +25,11 @@ function logout() {
   return async function (dispatch) {
     const authApi = new AuthApi();
     try {
-      await authApi.logout();
+      const result = await authApi.logout();
       dispatch({
         type: actionTypes.auth.loggedOut,
       });
+      return;
     } catch (err) {
       errorHandler(err);
     }
