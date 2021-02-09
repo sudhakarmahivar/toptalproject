@@ -25,7 +25,10 @@ function logout() {
   return async function (dispatch) {
     const authApi = new AuthApi();
     try {
-      const result = await authApi.logout();
+      await authApi.logout();
+      dispatch({
+        type: actionTypes.serviceStatus.clearAll,
+      });
       dispatch({
         type: actionTypes.auth.loggedOut,
       });

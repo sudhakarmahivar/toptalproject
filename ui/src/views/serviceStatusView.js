@@ -1,9 +1,21 @@
 import React from "react";
 import { connect } from "react-redux";
+import PropTypes from "prop-types";
+
 /**
  * Renders service api call success or error message received
  */
 export class ServiceStatusView extends React.Component {
+  static propTypes = {
+    successOnly: PropTypes.bool,
+    message: PropTypes.string,
+    errorCode: PropTypes.string,
+  };
+  static defaultProps = {
+    successOnly: false,
+    message: null,
+    errorCode: null,
+  };
   render() {
     const { errorCode, message, successOnly } = this.props;
     //erroCode - exists in case of errors. Success scenarios null

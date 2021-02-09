@@ -51,6 +51,9 @@ function timeSheetListReducer(state = initialState, action = {}) {
       timeSheets,
     };
   }
+  if (action.type === actionTypes.auth.loggedOut) {
+    return initialState;
+  }
 
   return state;
 }

@@ -1,6 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { Redirect } from "react-router-dom";
+import PropTypes from "prop-types";
 
 import { logout } from "../controllers/loginController";
 /**
@@ -8,6 +9,12 @@ import { logout } from "../controllers/loginController";
  * On landing, user signed out in server and takes user to home
  */
 export class LogoutView extends React.Component {
+  static propTypes = {
+    logout: PropTypes.func,
+  };
+  static defaultProps = {
+    logout: () => {},
+  };
   componentDidMount() {
     //give a sec to display message and logout
     setTimeout(() => this.props.logout(), 1000);

@@ -1,5 +1,6 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
+import PropTypes from "prop-types";
 
 //material-ui
 import { withStyles } from "@material-ui/core/styles";
@@ -28,6 +29,12 @@ const styles = {
  * Based on permissions shows/hides menu items
  */
 class HomeLeftPanel extends React.Component {
+  static propTypes = {
+    classes: PropTypes.object,
+  };
+  static defaultProps = {
+    classes: {},
+  };
   render() {
     const { role } = getUserContext();
     const { classes } = this.props;

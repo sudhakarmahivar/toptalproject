@@ -20,6 +20,7 @@ import WithDialogView from "./WithDialogView";
 import RegistrationView from "./registrationView";
 import ServiceStatusView from "./serviceStatusView";
 import { getUserContext } from "../framework/userContext";
+import PropTypes from "prop-types";
 
 const styles = (theme) => ({
   button: {
@@ -35,6 +36,22 @@ const styles = (theme) => ({
  * Displays all users
  */
 export class UserListView extends React.Component {
+  static propTypes = {
+    userList: PropTypes.object,
+    editDialogOpen: PropTypes.bool,
+    editUser: PropTypes.object,
+    getUsers: PropTypes.func,
+    deleteUser: PropTypes.func,
+    classes: PropTypes.object,
+  };
+  static defaultProps = {
+    userList: null,
+    editDialogOpen: false,
+    editUser: null,
+    classes: {},
+    getUsers: () => {},
+    deleteUser: () => {},
+  };
   columnDefs = [];
   constructor(props) {
     super(props);

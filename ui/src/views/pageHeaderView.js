@@ -1,4 +1,6 @@
 import React from "react";
+import PropTypes from "prop-types";
+
 import { withStyles } from "@material-ui/core/styles";
 const styles = {
   pageHeaderView: {},
@@ -16,6 +18,16 @@ const styles = {
  * Display Page title and subtitle
  */
 export class PageHeaderView extends React.Component {
+  static propTypes = {
+    title: PropTypes.string,
+    subtitle: PropTypes.string,
+    classes: PropTypes.object,
+  };
+  static defaultProps = {
+    title: null,
+    subtitle: null,
+    classes: {},
+  };
   render() {
     const { title, subtitle, classes } = this.props;
     return (

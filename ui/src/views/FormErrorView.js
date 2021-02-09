@@ -1,9 +1,17 @@
 import React from "react";
+import PropTypes from "prop-types";
+
 /**
  * Displays form errors ( client side validations)
  * Expects array of messages to be displayed
  */
 export default class FormErrorView extends React.Component {
+  static propTypes = {
+    messages: PropTypes.arrayOf(PropTypes.string),
+  };
+  static defaultProps = {
+    messages: [],
+  };
   render() {
     let { messages } = this.props;
     if (!messages) return null;

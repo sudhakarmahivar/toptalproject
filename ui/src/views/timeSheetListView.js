@@ -2,6 +2,8 @@ import React from "react";
 import { connect } from "react-redux";
 import DateFnsUtils from "@date-io/date-fns";
 import moment from "moment";
+import PropTypes from "prop-types";
+
 //material-ui
 import AddIcon from "@material-ui/icons/Add";
 import SearchIcon from "@material-ui/icons/Search";
@@ -69,6 +71,28 @@ const styles = (theme) => ({
  */
 
 export class TimeSheetListView extends React.Component {
+  static propTypes = {
+    timeSheets: PropTypes.arrayOf(PropTypes.object),
+    users: PropTypes.arrayOf(PropTypes.object),
+    toDate: PropTypes.string,
+    fromDate: PropTypes.string,
+    userId: PropTypes.func,
+    classes: PropTypes.object,
+    getTimeSheets: PropTypes.func,
+    getUsers: PropTypes.func,
+    showDayTimeSheet: PropTypes.func,
+  };
+  static defaultProps = {
+    timeSheets: [],
+    users: [],
+    toDate: null,
+    fromDate: null,
+    userId: null,
+    classes: {},
+    getTimeSheets: () => {},
+    getUsers: () => {},
+    showDayTimeSheet: () => {},
+  };
   columnDefs = [];
   constructor(props) {
     super(props);

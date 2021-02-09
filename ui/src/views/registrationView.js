@@ -1,6 +1,8 @@
 import React from "react";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
+import PropTypes from "prop-types";
+
 //material-ui
 import { Select, FormControl, MenuItem, InputLabel, TextField, Button, Paper } from "@material-ui/core";
 import { withStyles } from "@material-ui/core/styles";
@@ -28,6 +30,20 @@ const styles = (theme) => ({
  * Registration  by manager, admin is supported
  */
 class RegistrationView extends React.Component {
+  static propTypes = {
+    user: PropTypes.object,
+    registerUser: PropTypes.func,
+    saveUser: PropTypes.func,
+    clearError: PropTypes.func,
+    classes: PropTypes.object,
+  };
+  static defaultProps = {
+    user: null,
+    registerUser: () => {},
+    saveUser: () => {},
+    clearError: () => {},
+    classes: {},
+  };
   constructor(props) {
     super(props);
     const editMode = !!props.user;
@@ -126,6 +142,7 @@ class RegistrationView extends React.Component {
       });
       return;
     }
+    if (!user.role) user.role = "u";
     if (editMode) saveUser(user, onSuccess);
     else registerUser(user, onSuccess);
   };

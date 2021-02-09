@@ -2,6 +2,8 @@ import React from "react";
 import { connect } from "react-redux";
 import DateFnsUtils from "@date-io/date-fns";
 import moment from "moment";
+import PropTypes from "prop-types";
+
 //material-ui
 import { Button, IconButton, Paper } from "@material-ui/core";
 import { MuiPickersUtilsProvider, KeyboardDatePicker } from "@material-ui/pickers";
@@ -72,6 +74,29 @@ const styles = (theme) => ({
  */
 
 export class TimeSheetDayView extends React.Component {
+  //showDayTimeSheet, addTimeSheets, updateTimeSheets, deleteTimeSheets
+  static propTypes = {
+    timeSheets: PropTypes.arrayOf(PropTypes.object),
+    date: PropTypes.string,
+    userId: PropTypes.string,
+    users: PropTypes.arrayOf(PropTypes.object),
+    showDayTimeSheet: PropTypes.func,
+    addTimeSheets: PropTypes.func,
+    updateTimeSheets: PropTypes.func,
+    deleteTimeSheets: PropTypes.func,
+    classes: PropTypes.object,
+  };
+  static defaultProps = {
+    timeSheets: [],
+    date: null,
+    userId: null,
+    users: [],
+    showDayTimeSheet: () => {},
+    addTimeSheets: () => {},
+    updateTimeSheets: () => {},
+    deleteTimeSheets: () => {},
+    classes: {},
+  };
   columnDefs = [];
   gridApi = null;
   newRowIndex = -1; //new row added. index.

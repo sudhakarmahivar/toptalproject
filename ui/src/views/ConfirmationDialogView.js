@@ -6,6 +6,7 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import { withStyles } from "material-ui/styles";
+import PropTypes from "prop-types";
 
 /**
  * Displays all users
@@ -21,6 +22,26 @@ const styles = {
  * Confirmation Dialog for delete and other critical actions
  */
 export class ConfirmationDialogView extends React.Component {
+  static propTypes = {
+    open: PropTypes.bool,
+    title: PropTypes.string,
+    message: PropTypes.string,
+    okText: PropTypes.string,
+    cancelText: PropTypes.string,
+    okHandler: PropTypes.func,
+    cancelHandler: PropTypes.func,
+    classes: PropTypes.object,
+  };
+  static defaultProps = {
+    open: false,
+    title: null,
+    message: null,
+    okText: null,
+    cancelText: null,
+    okHandler: null,
+    cancelHandler: null,
+    classes: {},
+  };
   render() {
     const { open, title, message, okText = "OK", cancelText = "Cancel", okHandler, cancelHandler } = this.props;
     return (

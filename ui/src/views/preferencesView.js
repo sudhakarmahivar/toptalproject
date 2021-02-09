@@ -1,5 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
+import PropTypes from "prop-types";
 
 //material-ui
 import { TextField, Button, Paper } from "@material-ui/core";
@@ -21,6 +22,18 @@ const styles = (theme) => ({
  * Displays User Preference
  */
 class PreferencesView extends React.Component {
+  static propTypes = {
+    user: PropTypes.object,
+    saveUser: PropTypes.func,
+    clearError: PropTypes.func,
+    classes: PropTypes.object,
+  };
+  static defaultProps = {
+    user: { workingHoursPerDay: 0 },
+    classes: {},
+    saveUser: () => {},
+    clearError: () => {},
+  };
   constructor(props) {
     super(props);
     this.state = {
