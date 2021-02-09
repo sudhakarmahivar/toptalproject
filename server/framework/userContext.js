@@ -6,6 +6,9 @@
 var httpContext = require("express-http-context");
 
 class UserContext {
+  /**
+   * Returns logged in user context
+   */
   static get() {
     return httpContext.get("userContext") || { userId: null, role: null, token: null }; //empty object when not set ( as in test runs)
   }

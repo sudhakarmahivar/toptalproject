@@ -7,35 +7,22 @@ const ValidationError = require("../../../framework/errors/validationError");
  * @swagger
  *  components:
  *    schemas:
- *      User:
+ *      Login:
  *        type: object
  *        required:
  *          - name
- *          - email
- *          - userName
+ *          - password
  *        properties:
  *          userName:
  *            type: string
  *            description: Your loginid.
- *          name:
+ *          password:
  *            type: string
- *          role:
- *            type: string
- *          email:
- *            type: string
- *            format: email
- *            description: Email for the user.
- *          workingHoursPerDay:
- *            type: number
- *            descriptoin: Less than or equal to 24
- *        example:
- *           name: Hello User
+ *            description: Plain text password
+ *          example:
  *           userName: helloUser
- *           email: fake@email.com
- *           workingHoursPerDay: 6.5
- *           role: u
+ *           password: mySecretPassword
  */
-
 module.exports = class UserModel extends (
   Model
 ) {
