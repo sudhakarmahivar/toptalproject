@@ -8,8 +8,10 @@ class UserApi extends BaseApi {
   saveUser = async (user) => {
     return this.apiClient.put(config.apiEndPoints.user, user);
   };
-  createUser = async (user) => {
-    return this.apiClient.post(`${config.apiEndPoints.register}`, user);
+  createUser = async (user, loggedIn) => {
+    //use different endpoints depending on if user logged in
+    const endPoint = loggedIn ? config.apiEndPoints.user : config.apiEndPoints.register;
+    return this.apiClient.post(endPoint, user);
   };
   deleteUser = async (userId) => {
     return this.apiClient.delete(`${config.apiEndPoints.user}/${userId}`);

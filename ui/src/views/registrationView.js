@@ -162,7 +162,7 @@ class RegistrationView extends React.Component {
                 <TextField
                   required
                   id="userName"
-                  label="User Name"
+                  label="Login Id"
                   error={userNameError}
                   onChange={(e) => this.onFieldChange(e, "userName", "userNameError")}
                   value={user.userName}

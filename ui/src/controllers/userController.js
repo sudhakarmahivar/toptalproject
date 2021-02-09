@@ -79,10 +79,13 @@ function deleteUser(userId) {
  * @param {*} onSuccess Success callback
  */
 function registerUser(user, onSuccess) {
-  return async function (dispatch) {
+  return async function (dispatch, getState) {
     const userApi = new UserApi();
     try {
-      let data = await userApi.createUser(user);
+      //check if user logged in or not
+      const userId = (getState().authContext || {}).userId;
+      let data = await userApi.createUser(user, !!userId);
+
       dispatch({
         type: actionTypes.registration.registrationSucceeded,
         data,

@@ -75,6 +75,7 @@ export class TimeSheetDayView extends React.Component {
   columnDefs = [];
   gridApi = null;
   newRowIndex = -1; //new row added. index.
+  gridKey = 1; //to force a grid to repaint when new props come in
   constructor(props) {
     super(props);
     this.state = {
@@ -232,7 +233,9 @@ export class TimeSheetDayView extends React.Component {
   componentDidUpdate = (prevProps) => {
     //check if user has changed date, if so reset data
     const { date, timeSheets } = this.props;
+    console.log(date, timeSheets);
     if (date !== prevProps.date) {
+      this.gridKey++;
       this.setState({
         totalHours: 0,
         formErrors: [],
@@ -256,6 +259,7 @@ export class TimeSheetDayView extends React.Component {
   render() {
     let { classes, userId, users } = this.props;
     let { submitEnabled, timeSheets, date, totalHours, formErrors } = this.state;
+    console.log(timeSheets);
     const name = (users.find((user) => user.userId === userId) || {}).name;
     const maxDate = new Date(),
       minDate = moment().subtract(1, "year").toDate();
@@ -303,7 +307,7 @@ export class TimeSheetDayView extends React.Component {
               columnDefs={this.columnDefs}
               rowData={timeSheets}
               stopEditingWhenGridLosesFocus={true}
-              //editType="fullRow"
+              key={this.gridKey}
               components={{
                 numericCellEditor: getNumericCellEditor(0, 24),
               }}

@@ -125,11 +125,9 @@ describe("Create timeSheet tests", () => {
     let result = await runServiceCreateTest(roles.user, {}); //success
     expect(result.userId).toEqual(mockUserId);
   });
-  test("create timesheet, saves against logged in userId for users, manager roles, ignoring user ids even if sent in request", async () => {
-    let result = await runServiceCreateTest(roles.user, { userId: "some-other-user" }); //override with usercontext
-    expect(result.userId).toEqual(mockUserId);
-    result = await runServiceCreateTest(roles.manager, { userId: "some-other-user-y" });
-    expect(result.userId).toEqual(mockManagerId);
+  test("create timesheet, when attempted to create for others by user, manager roles, throws auth error", async () => {
+    let result = await runServiceCreateTest(roles.user, { userId: "some-other-user" }, errorCodes.authorizationError);
+    result = await runServiceCreateTest(roles.manager, { userId: "some-other-user-y" }, errorCodes.authorizationError);
   });
   test("create timesheet, for admin role, allows saving against other userIds", async () => {
     const result = await runServiceCreateTest(roles.admin, { userId: "some-other-user" });

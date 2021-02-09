@@ -19,6 +19,7 @@ import ConfirmationDialogView from "./ConfirmationDialogView";
 import WithDialogView from "./WithDialogView";
 import RegistrationView from "./registrationView";
 import ServiceStatusView from "./serviceStatusView";
+import { getUserContext } from "../framework/userContext";
 
 const styles = (theme) => ({
   button: {
@@ -133,6 +134,9 @@ export class UserListView extends React.Component {
   };
   DeleteButtonRenderer(props) {
     const user = props.value.rowData;
+    const loggedInUser = getUserContext().userId;
+    //do not allow user to delete themself
+    if (loggedInUser === user.userId) return null;
     return (
       <IconButton
         aria-label="delete"
@@ -148,6 +152,7 @@ export class UserListView extends React.Component {
     this.setState({
       editDialogOpen: true,
       editUser: null,
+      allowRoleEdit: true,
     });
   };
   componentDidMount() {

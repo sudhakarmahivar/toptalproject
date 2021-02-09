@@ -61,12 +61,13 @@ class UserService {
     if (!name || !name.match(/^[a-z\s]+$/i) || name.length > 50) {
       throw new ValidationError(errorMessages.nameError);
     }
+
     if (!email || !/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(email)) {
       throw new ValidationError(errorMessages.emailError);
     }
     if (typeof workingHoursPerDay === "undefined" || workingHoursPerDay === null) {
       //User has not sent his working Hours Per day. this should be ok
-      userModel.workingHoursPerDay = 8;
+      userModel.workingHoursPerDay = config.workingHoursPerDayDefault;
     } else if (workingHoursPerDay < 0 || workingHoursPerDay > 24) {
       //User has sent this explicitly then validate
       throw new ValidationError(errorMessages.workingHoursPerDayError);
@@ -85,14 +86,16 @@ class UserService {
   async create(userModel) {
     const { userName } = userModel;
     const { userId: loggedInUserId, role: loggedInUserRole } = this.userContext;
+    console.log(this.userContext);
     //validate user name doesnt exist
-    let dbRecord = await this.repository.findOne({ userName });
+    let dbRecord = await this.repository.findOne({ userName, deleted: false });
     if (dbRecord) throw new ValidationError(errorMessages.userNameAlreadyExists);
 
     userModel.createdBy = loggedInUserId;
 
-    //when non admin creating a user, assign it a User role
+    //when non admin creating a user, assign it a 'User' role
     //If admin or manager attempting to create user, use the role sent in payload
+
     if (loggedInUserRole !== roles.manager && loggedInUserRole !== roles.admin) {
       userModel.role = roles.user;
     }
@@ -102,6 +105,7 @@ class UserService {
     var hashedPassword = bcrypt.hashSync(userModel.password, 8);
     userModel.password = hashedPassword;
 
+    console.log(userModel);
     userModel = await this.repository.save(userModel);
     delete userModel.password;
     return userModel;

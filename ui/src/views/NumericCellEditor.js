@@ -12,7 +12,7 @@ export default function getNumericCellEditor(min, max) {
   function isKeyPressedNumeric(event) {
     var charCode = getCharCodeFromEvent(event);
     var charStr = String.fromCharCode(charCode);
-    return isCharNumeric(charStr);
+    return isCharNumeric(charStr) || charStr === ".";
   }
 
   function getCharCodeFromEvent(event) {
@@ -73,6 +73,7 @@ export default function getNumericCellEditor(min, max) {
   // returns the new value after editing
   NumericCellEditor.prototype.getValue = function () {
     let nbr = Number(this.eInput.value);
+    console.log(nbr);
     if (!isNaN(nbr) && nbr >= min && nbr <= max) return nbr;
     return 0;
   };

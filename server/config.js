@@ -11,4 +11,5 @@ module.exports = {
   },
   authSecret: "some-secret-ideally-in-env-variable-or-in-file",
   tokenExpiresIn: 20 * 60, //secs
+  workingHoursPerDayDefault: 8,
 };
