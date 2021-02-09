@@ -46,6 +46,23 @@ const styles = (theme) => ({
     alignItems: "center",
     justifyContent: "space-between",
   },
+  userSelectSearchPanel: {
+    display: "flex",
+  },
+  activitiesList: {
+    marginTop: 12,
+    marginBottom: 1,
+    "& li": {
+      lineHeight: "15px",
+    },
+  },
+  selectUserPaper: {
+    padding: 8,
+    marginRight: 20,
+  },
+  searchPanelPaper: {
+    padding: 2,
+  },
 });
 /**
  * Displays Timesheets, with feature to see other user timesheets, search date range
@@ -66,11 +83,25 @@ export class TimeSheetListView extends React.Component {
     this.columnDefs.push({
       headerName: "Date",
       field: "date",
+      width: 50,
     });
     this.columnDefs.push({
       headerName: "Total Hours",
       field: "hours",
+      width: 50,
     });
+    this.columnDefs.push({
+      headerName: "Activities",
+      field: "activities",
+      autoHeight: true,
+      cellRenderer: "ActivitiesRenderer",
+    });
+  }
+  ActivitiesRenderer(props) {
+    const activities = props.value;
+
+    const listItems = activities.map((activity) => <li>{activity}</li>);
+    return <ul className={this.props.classes.activitiesList}>{listItems}</ul>;
   }
   componentDidMount() {
     this.searchTimeSheets(); //invoke search with default parameter
@@ -105,6 +136,10 @@ export class TimeSheetListView extends React.Component {
   onGridReady = (params) => {
     params.api.sizeColumnsToFit();
   };
+  setRowHeight = (params) => {
+    let count = params.data.activities.length;
+    return count <= 1 ? 50 : count * 25;
+  };
   render() {
     const { timeSheets, users, classes } = this.props;
     const sortedUsers = users.sort((a, b) => {
@@ -120,70 +155,71 @@ export class TimeSheetListView extends React.Component {
     return (
       <div className="timeSheetListView">
         <PageHeaderView title={`Manage Timesheets`} />
+        <div className={classes.userSelectSearchPanel}>
+          {showSelectUser && (
+            <Paper className={classes.selectUserPaper}>
+              <FormControl className={classes.userSelector}>
+                <InputLabel id="demo-simple-select-label">Select User</InputLabel>
+                <Select labelId="demo-simple-select-label" id="user" value={userId} onChange={this.onUserSelect}>
+                  {sortedUsers.map(({ userId, name }) => (
+                    <MenuItem value={userId} key={userId}>
+                      {name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Paper>
+          )}
 
-        {showSelectUser && (
-          <Paper className="paperWrapper">
-            <FormControl className={classes.userSelector}>
-              <InputLabel id="demo-simple-select-label">Select User</InputLabel>
-              <Select labelId="demo-simple-select-label" id="user" value={userId} onChange={this.onUserSelect}>
-                {sortedUsers.map(({ userId, name }) => (
-                  <MenuItem value={userId} key={userId}>
-                    {name}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+          <Paper className={classes.searchPanelPaper}>
+            <div className={classes.searchPanel}>
+              <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                <KeyboardDatePicker
+                  disableToolbar
+                  variant="inline"
+                  format="yyyy-MM-dd"
+                  margin="normal"
+                  id="fromDate"
+                  label="From Date"
+                  value={fromDate}
+                  onChange={(event) => this.onDateChange("fromDate", event)}
+                  KeyboardButtonProps={{
+                    "aria-label": "change from date",
+                  }}
+                  maxDate={maxDate}
+                  minDate={minDate}
+                  autoOk={true}
+                />
+                <KeyboardDatePicker
+                  disableToolbar
+                  variant="inline"
+                  format="yyyy-MM-dd"
+                  margin="normal"
+                  id="toDate"
+                  label="To Date"
+                  value={toDate}
+                  onChange={(event) => this.onDateChange("toDate", event)}
+                  KeyboardButtonProps={{
+                    "aria-label": "change from date",
+                  }}
+                  maxDate={maxDate}
+                  minDate={minDate}
+                  autoOk={true}
+                />
+              </MuiPickersUtilsProvider>
+
+              <Button
+                variant="contained"
+                color="primary"
+                className={classes.button}
+                startIcon={<SearchIcon />}
+                onClick={this.onSearchClick}
+              >
+                Search
+              </Button>
+            </div>
           </Paper>
-        )}
-
-        <Paper className="paperWrapper">
-          <div className={classes.searchPanel}>
-            <MuiPickersUtilsProvider utils={DateFnsUtils}>
-              <KeyboardDatePicker
-                disableToolbar
-                variant="inline"
-                format="yyyy-MM-dd"
-                margin="normal"
-                id="fromDate"
-                label="From Date"
-                value={fromDate}
-                onChange={(event) => this.onDateChange("fromDate", event)}
-                KeyboardButtonProps={{
-                  "aria-label": "change from date",
-                }}
-                maxDate={maxDate}
-                minDate={minDate}
-                autoOk={true}
-              />
-              <KeyboardDatePicker
-                disableToolbar
-                variant="inline"
-                format="yyyy-MM-dd"
-                margin="normal"
-                id="toDate"
-                label="To Date"
-                value={toDate}
-                onChange={(event) => this.onDateChange("toDate", event)}
-                KeyboardButtonProps={{
-                  "aria-label": "change from date",
-                }}
-                maxDate={maxDate}
-                minDate={minDate}
-                autoOk={true}
-              />
-            </MuiPickersUtilsProvider>
-
-            <Button
-              variant="contained"
-              color="primary"
-              className={classes.button}
-              startIcon={<SearchIcon />}
-              onClick={this.onSearchClick}
-            >
-              Search
-            </Button>
-          </div>
-        </Paper>
+        </div>
         <div className={classes.gridHeader}>
           <div className={classes.resultsSummary}>
             Displaying Timesheets of {name} for period {resultFromDate} to {resultToDate}
@@ -212,11 +248,15 @@ export class TimeSheetListView extends React.Component {
             onRowClicked={this.onDaySelect}
             onGridReady={this.onGridReady}
             pagination={true}
+            getRowHeight={this.setRowHeight}
             paginationPageSize={10}
             rowClassRules={{
               lowWorkingHours: (params) => {
                 return params.data.hours < getUserContext().workingHoursPerDay;
               },
+            }}
+            frameworkComponents={{
+              ActivitiesRenderer: this.ActivitiesRenderer.bind(this),
             }}
             // setting default column properties
             defaultColDef={{
@@ -245,9 +285,10 @@ const mapStateToProps = (state) => {
     let dailyHours = dayTimeSheets.reduce((pv, ts) => {
       return ts.hours + pv;
     }, 0);
-    timeSheetSummary.push({ date: uniqDate, hours: dailyHours });
+    let activities = dayTimeSheets.map((dts) => dts.activity);
+    timeSheetSummary.push({ date: uniqDate, hours: dailyHours, activities });
   });
-
+  timeSheetSummary.sort((a, b) => (b.date > a.date ? 1 : -1));
   return { timeSheets: timeSheetSummary, users, fromDate, toDate, userId };
 };
 
