@@ -1,6 +1,3 @@
-/**
- * Base class for all service error
- */
 const errorMessages = {
   validDateRequired: "Date mandatory and should be in past",
   validHoursRequired: "Hours mandatory and should be < 24 hours",
@@ -14,5 +11,12 @@ const errorMessages = {
   nameError: "Name should be < 25 chars length and contain only alphabets",
   emailError: "Invalid Email provided",
   workingHoursPerDayError: "Working Hours per day should be between 0 and 24",
+  authorizationHeaderMissing: "Authorization header missing",
+  accessTokenInvalid: "Access token invalid",
+  accessTokenInactivated: "Access token inactivated",
+  userNameAlreadyExists: "User name already exists",
+  userDoesntExist: "User doesnt exist",
+  notAuthorizedForUserRecord: "Not authorized for User record",
+  invalidCredentials: "Invalid credentials",
 };
 module.exports = errorMessages;

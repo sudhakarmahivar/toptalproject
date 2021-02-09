@@ -1,4 +1,8 @@
-const { logger, UserContext, utils, errorMessages } = require("../../framework/framework");
+const passwordValidator = require("password-validator");
+const bcrypt = require("bcryptjs");
+var jwt = require("jsonwebtoken");
+
+const { UserContext, errorMessages } = require("../../framework/framework");
 const config = require("../../config");
 const { getRepository } = require("../../framework/datastore/dbConnectionManager");
 const UserModel = require("./model/userModel");
@@ -7,10 +11,6 @@ const ValidationError = require("../../framework/errors/validationError");
 const AuthorizationError = require("../../framework/errors/authorizationError");
 const AuthenticationError = require("../../framework/errors/authenticationError");
 const ResourceNotFoundError = require("../../framework/errors/ResourceNotFoundError");
-const passwordValidator = require("password-validator");
-const bcrypt = require("bcryptjs");
-var jwt = require("jsonwebtoken");
-const { authenticationError } = require("../../framework/errors/errorMessages");
 
 class UserService {
   repository = null;
@@ -79,18 +79,21 @@ class UserService {
     const { userId: loggedInUserId, role: loggedInUserRole } = this.userContext;
     //validate user name doesnt exist
     let dbRecord = await this.repository.findOne({ userName });
-    if (dbRecord) throw new ValidationError("User name already exists");
+    if (dbRecord) throw new ValidationError(errorMessages.userNameError);
 
-    //save
     userModel.createdBy = loggedInUserId;
+
     //when non admin creating a user, assign it a User role
     //If admin or manager attempting to create user, use the role sent in payload
     if (loggedInUserRole !== roles.manager && loggedInUserRole !== roles.admin) {
       userModel.role = roles.user;
     }
+
     this.validateModel(userModel);
+    //hash password for storage
     var hashedPassword = bcrypt.hashSync(userModel.password, 8);
     userModel.password = hashedPassword;
+
     userModel = await this.repository.save(userModel);
     delete userModel.password;
     return userModel;
@@ -99,25 +102,22 @@ class UserService {
   async update(userModel) {
     const { userId } = userModel;
     let dbRecord = this.repository.findOne({ userId, deleted: false });
-    if (!dbRecord) throw new ResourceNotFoundError("User doesnt exist");
+    if (!dbRecord) throw new ResourceNotFoundError(errorMessages.userDoesntExist);
 
     const { userId: loggedInUserId, role: loggedInUserRole } = this.userContext;
-
-    //Allow password change
-    //userModel.userName = dbRecord.userName;
 
     //Validate if you are authorized
     let allowed = false;
     if (dbRecord.userId === loggedInUserId) {
       //user can't change his role
       allowed = true;
-      userModel.role = dbRecord.role;
+      userModel.role = dbRecord.role; //in case of self update, retain original role
     } else if (loggedInUserRole === roles.manager || loggedInUserRole === roles.admin) {
-      //admin allowed to chagne role, password
+      //admin allowed to change role, password
       allowed = true;
     }
-    if (!allowed) throw new AuthorizationError("Not authorized for User record");
-    //save
+    if (!allowed) throw new AuthorizationError(errorMessages.notAuthorizedForUserRecord);
+
     userModel.updatedBy = loggedInUserId;
     this.validateModel(userModel, true);
     userModel = await this.repository.save(userModel);
@@ -131,13 +131,12 @@ class UserService {
     if (loggedInUserRole === roles.user) throw new AuthorizationError();
 
     let dbRecord = await this.repository.findOne({ userId, deleted: false });
-    if (!dbRecord) throw new ResourceNotFoundError("User doesnt exist");
+    if (!dbRecord) throw new ResourceNotFoundError(errorMessages.userDoesntExist);
     dbRecord.deleted = true;
 
     dbRecord.updatedBy = loggedInUserId;
     dbRecord = await this.repository.save(dbRecord);
     delete dbRecord.password;
-    //TODO: should we send the record
     return dbRecord;
   }
 
@@ -147,7 +146,7 @@ class UserService {
     const { userId: loggedInUserId, role } = this.userContext;
     if (userId === loggedInUserId || role === roles.manager || role === roles.admin) {
       const user = await this.repository.findOne({ userId });
-      if (!user) throw new ResourceNotFoundError("User doesnt exist");
+      if (!user) throw new ResourceNotFoundError(errorMessages.userDoesntExist);
       delete user.password;
       return user;
     } else throw new AuthorizationError();
@@ -164,14 +163,16 @@ class UserService {
     const { userName, password } = loginModel;
     if (!userName || !password) return new AuthenticationError();
     var dbUser = await this.repository.findOne({ userName, deleted: false });
-    if (!dbUser) throw new ResourceNotFoundError("User doesnt exist");
+    if (!dbUser) throw new ResourceNotFoundError(errorMessages.userDoesntExist);
     var passwordIsValid = bcrypt.compareSync(password, dbUser.password);
-    if (!passwordIsValid) throw new AuthenticationError("Invalid credentials");
+    if (!passwordIsValid) throw new AuthenticationError(errorMessages.invalidCredentials);
+
     var accessToken = jwt.sign({ userId: dbUser.userId, role: dbUser.role }, config.authSecret, {
-      expiresIn: 86400, // expires in 24 hours
+      expiresIn: config.tokenExpiresIn,
     });
     delete dbUser.password;
-    return { ...dbUser, accessToken, expiresIn: 86400 };
+
+    return { ...dbUser, accessToken, expiresIn: config.tokenExpiresIn };
   }
   async logout(token) {
     if (token) {

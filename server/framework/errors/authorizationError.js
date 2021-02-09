@@ -3,7 +3,7 @@ const errorMessages = require("./errorMessages");
 const ServiceError = require("./serviceError");
 
 /**
- * Base class for all service error
+ * Authorization error class
  */
 class AuthorizationError extends ServiceError {
   constructor(error = errorMessages.authorizationError) {

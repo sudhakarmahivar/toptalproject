@@ -2,7 +2,7 @@ const errorCodes = require("./errorCodes");
 const ServiceError = require("./serviceError");
 
 /**
- * Base class for all service error
+ * Thrown when specified resource ( e.g user, timesheet) is not available
  */
 class ResourceNotFoundError extends ServiceError {
   constructor(error = "Requested resource not found") {

@@ -1,5 +1,7 @@
 const EntitySchema = require("typeorm").EntitySchema;
-
+/**
+ * Base entity injecting common audit fields in all entities
+ */
 module.exports = class DBEntitySchema {
   constructor(schema) {
     Object.assign(schema.columns, {

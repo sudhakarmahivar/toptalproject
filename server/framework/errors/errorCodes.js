@@ -1,5 +1,5 @@
 /**
- * Base class for all service error
+ * Common error codes
  */
 module.exports = {
   validationError: "VALERROR",

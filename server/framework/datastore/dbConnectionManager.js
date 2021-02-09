@@ -1,11 +1,10 @@
 const config = require("../../config");
 const typeorm = require("typeorm");
-
+/**
+ * Common db connection class.
+ */
 module.exports = class DBConnectionManager {
-  //  entity = null;
   entities = [];
-  //repository = null;
-
   constructor(entities) {
     this.entities = entities;
   }

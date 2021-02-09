@@ -1,5 +1,9 @@
 const DBConnectionManager = require("../framework/datastore/dbConnectionManager");
-
+/**
+ * Establishes DB Connection and registers all entity schemas with connection manager
+ * Invoked only once during app start,so connection shared across requests
+ *
+ */
 module.exports = class DBInitializer {
   async init() {
     //add different schema definition file here

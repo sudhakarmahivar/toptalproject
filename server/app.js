@@ -4,7 +4,6 @@ var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var bodyParser = require("body-parser");
 
-var indexRouter = require("./routes/index");
 var timeSheetRouter = require("./routes/timeSheet");
 var userRouter = require("./routes/user");
 var authRouter = require("./routes/auth");
@@ -36,11 +35,11 @@ app.use(httpContext.middleware);
 new DBInitializer().init();
 
 //Services routes - Log only high level routes, while individual routes handle next level routing
-app.use("/", indexRouter);
 app.use("/timesheet", contextBuilder, timeSheetRouter);
 app.use("/user", contextBuilder, userRouter);
 app.use("/auth", authRouter);
 
+//Handle all exceptions here
 app.use(serviceErrorHandler);
 
 var port = normalizePort(process.env.PORT || "6002");

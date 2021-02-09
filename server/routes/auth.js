@@ -1,37 +1,35 @@
 var express = require("express");
 
 var router = express.Router();
-const { logger, utils } = require("../framework/framework");
+const { utils } = require("../framework/framework");
 const UserService = require("../services/user/userService");
-router.post("/register", async function (req, res, next) {
-  try {
+const routerErrorHandler = require("./routerErrorHandler");
+/**
+ * Registers auth related routes
+ * No business rules implemented, but should only act as bridge to ServiceClass
+ */
+router.post(
+  "/register",
+  routerErrorHandler(async function (req, res, next) {
     let service = new UserService();
     let result = await service.create(req.body);
     res.status(200).json(result);
-    next && next();
-  } catch (err) {
-    console.log(err);
-    next(err);
-  }
-});
-router.post("/login", async function (req, res, next) {
-  try {
+  })
+);
+router.post(
+  "/login",
+  routerErrorHandler(async function (req, res, next) {
     let service = new UserService();
     let result = await service.login(req.body);
     res.status(200).json(result);
-    next && next();
-  } catch (err) {
-    next(err);
-  }
-});
-router.post("/logout", async function (req, res, next) {
-  try {
+  })
+);
+router.post(
+  "/logout",
+  routerErrorHandler(async function (req, res, next) {
     let service = new UserService();
     let result = await service.logout(utils.extractAuthToken(req));
     res.status(200).json(result);
-    next && next();
-  } catch (err) {
-    next(err);
-  }
-});
+  })
+);
 module.exports = router;

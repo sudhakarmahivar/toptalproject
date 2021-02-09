@@ -1,50 +1,41 @@
-var express = require("express");
-const TimesheetService = require("../services/timeSheet/timeSheetService");
-var router = express.Router();
-const { logger } = require("../framework/framework");
+const express = require("express");
+const router = express.Router();
 
-const TimeSheetService = require("../services/timeSheet/timeSheetService");
+const TimesheetService = require("../services/timeSheet/timeSheetService");
+const routerErrorHandler = require("./routerErrorHandler");
 /**
  * Timesheet CRUD routes
  */
-router.get("/", async function (req, res, next) {
-  try {
+router.get(
+  "/",
+  routerErrorHandler(async function (req, res, next) {
     let result = await new TimesheetService().search(req.query);
     res.status(200).json(result);
-    next && next();
-  } catch (err) {
-    next(err);
-  }
-});
+  })
+);
 
-router.post("/", async function (req, res, next) {
-  try {
+router.post(
+  "/",
+  routerErrorHandler(async function (req, res, next) {
     let service = new TimeSheetService();
     let result = await service.create(req.body);
     res.status(200).json(result);
-    next && next();
-  } catch (err) {
-    next(err);
-  }
-});
-router.put("/", async function (req, res, next) {
-  try {
+  })
+);
+router.put(
+  "/",
+  routerErrorHandler(async function (req, res, next) {
     let service = new TimeSheetService();
     let result = await service.update(req.body);
     res.status(200).json(result);
-    next && next();
-  } catch (err) {
-    next(err);
-  }
-});
-router.delete("/:timeSheetId", async function (req, res, next) {
-  try {
+  })
+);
+router.delete(
+  "/:timeSheetId",
+  routerErrorHandler(async function (req, res, next) {
     let service = new TimeSheetService();
     let result = await service.delete(req.params.timeSheetId);
     res.status(200).json(result);
-    next && next();
-  } catch (err) {
-    next(err);
-  }
-});
+  })
+);
 module.exports = router;

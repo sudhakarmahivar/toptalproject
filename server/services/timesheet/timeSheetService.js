@@ -1,12 +1,17 @@
-const { logger, UserContext, utils, errorMessages } = require("../../framework/framework");
+const { Between } = require("typeorm");
+
+const { UserContext, utils, errorMessages } = require("../../framework/framework");
 const { getRepository } = require("../../framework/datastore/dbConnectionManager");
 const TimeSheetModel = require("./model/timeSheetModel");
-const { Between } = require("typeorm");
 const roles = require("../common/roles");
 const ValidationError = require("../../framework/errors/validationError");
-const errorCodes = require("../../framework/errors/errorCodes");
 const AuthorizationError = require("../../framework/errors/authorizationError");
 const ResourceNotFoundError = require("../../framework/errors/ResourceNotFoundError");
+/**
+ * Timesheet business functionality implemented here
+ * Service created independant calling mechanism ( http, message triggered etc)
+ * No reference of http verb should be made
+ */
 class TimeSheetService {
   repository = null;
   userContext = null;
@@ -72,7 +77,6 @@ class TimeSheetService {
   }
 
   async create(timeSheetModel) {
-    //TODO: DTO Validations and other rules
     const { userId, role } = this.userContext;
     //if admin and userId sent, use the same. In all other cases overwrite with logged in user
     if (role !== roles.admin || !timeSheetModel.userId) {
@@ -83,7 +87,7 @@ class TimeSheetService {
     timeSheetModel.timeSheetId = null;
     this.validateModel(timeSheetModel);
 
-    //Validate day total doesnt exceed
+    //Validate day total doesn't exceed
     await this.validateDayTotal(timeSheetModel);
 
     timeSheetModel = await this.repository.save(timeSheetModel);
