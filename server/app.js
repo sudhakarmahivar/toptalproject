@@ -3,6 +3,8 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var bodyParser = require("body-parser");
+const fs = require("fs");
+const https = require("https");
 
 var timeSheetRouter = require("./routes/timeSheet");
 var userRouter = require("./routes/user");
@@ -51,7 +53,20 @@ app.set("port", port);
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
+let key = fs.readFileSync("./server.key"); //Set path relative to specific services and NOT relative to current file.
+let cert = fs.readFileSync("./server.cert");
+
+// we will pass our 'app' to 'https' server
+var server = https.createServer(
+  {
+    key,
+    cert,
+    passphrase: "",
+    requestCert: false,
+    rejectUnauthorized: false,
+  },
+  app
+);
 
 /**
  * Listen on provided port, on all network interfaces.

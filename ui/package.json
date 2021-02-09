@@ -52,7 +52,7 @@
       "react-app/jest"
     ]
   },
-  "proxy": "http://localhost:6002",
+  "proxy": "https://localhost:6002",
   "jest": {},
   "browserslist": {
     "production": [
