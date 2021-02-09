@@ -20,16 +20,26 @@ describe("UserService - Create User tests", () => {
       await userService.create({ userName: "xyz", password: "Hash@123" });
     } catch (err) {
       expect(err.errorCode).toEqual(errorCodes.validationError);
-      expect(err.error).toEqual(errorMessages.userNameError);
+      expect(err.message).toEqual(errorMessages.userNameError);
     }
     //should succeed
-    let result = await userService.create({ userName: "sudhakarnraju", password: "Hash@123" });
+    let result = await userService.create({
+      name: "Sudhakar",
+      email: "sudhakar@test.com",
+      userName: "sudhakarnraju",
+      password: "Hash@123",
+    });
     expect(result).not.toBeNull();
     expect(result.userId).toEqual(2000);
   });
   let runPasswordtest = async (userService, password, success) => {
     try {
-      let result = await userService.create({ userName: "sudhakarnraju", password });
+      let result = await userService.create({
+        userName: "sudhakarnraju",
+        name: "someuser",
+        email: "some@email.com",
+        password,
+      });
       if (!success) {
         //test case expected to fail, hence you should be here
         fail("Expected to fail for password:" + password);
@@ -40,7 +50,7 @@ describe("UserService - Create User tests", () => {
         fail("Expected to pass for password:" + password);
       }
       expect(err.errorCode).toEqual(errorCodes.validationError);
-      expect(err.error).toEqual(errorMessages.passwordRulesError);
+      expect(err.message).toEqual(errorMessages.passwordRulesError);
     }
   };
 
@@ -66,11 +76,17 @@ describe("UserService - Create User tests", () => {
       }
     );
     //should succeed
-    let result = await userService.create({ userName: "sudhakarnraju", password: "Hash@123" });
+    let result = await userService.create({
+      name: "testuser",
+      email: "test@test.com",
+      userName: "sudhakarnraju",
+      password: "Hash@123",
+    });
     expect(result).not.toBeNull();
     expect(result.userId).toEqual(2000);
     expect(result.role).toEqual(roles.user);
   });
+
   test("should assign user to role as in payload, when invoked by admin/manager", async () => {
     let userService = new UserService(
       { findOne: jest.fn((params) => null), save: jest.fn((model) => ({ ...model, userId: 2000 })) },
@@ -80,16 +96,25 @@ describe("UserService - Create User tests", () => {
       }
     );
     //should succeed
-    let result = await userService.create({ userName: "sudhakarnraju", password: "Hash@123", role: roles.manager });
+    let result = await userService.create({
+      name: "new name",
+      email: "some@some.com",
+      userName: "sudhakarnraju",
+      password: "Hash@123",
+      role: roles.manager,
+    });
     expect(result).not.toBeNull();
     expect(result.userId).toEqual(2000);
     expect(result.role).toEqual(roles.manager);
   });
 });
+
 describe("UserService - Update User tests", () => {
   test("should allow password change for self, satisfying password rules", async () => {
     let dbRecord = {
       userId: 1000,
+      name: "somename",
+      email: "some@mail.com",
       userName: "testuser",
       password: "x",
     };
@@ -102,17 +127,25 @@ describe("UserService - Update User tests", () => {
       role: roles.user,
     });
     const password = "Hash@123";
-    await userService.update({ userId: 1000, userName: "sudhakarnraju", password });
+    await userService.update({
+      userId: 1000,
+      userName: "sudhakarnraju",
+      password,
+      name: "new name",
+      email: "some@some.com",
+    });
     expect(mockRepository.save).toBeCalled();
     const userModel = mockRepository.save.mock.calls[0][0];
     expect(userModel.password).toEqual(password);
   });
-  test("should retain userName, role from current db record", async () => {
+  test("should retain role from current db record", async () => {
     let dbRecord = {
       userId: 1000,
       userName: "testuser",
       password: "x",
       role: roles.user,
+      name: "new name",
+      email: "some@some.com",
     };
     let mockRepository = {
       findOne: jest.fn((params) => dbRecord),
@@ -123,10 +156,16 @@ describe("UserService - Update User tests", () => {
       role: roles.user,
     });
     const password = "Hash@123";
-    await userService.update({ userId: 1000, userName: "someothername", password, role: roles.manager });
+    await userService.update({
+      userId: 1000,
+      name: "new name",
+      email: "some@some.com",
+      userName: "someothername",
+      password,
+      role: roles.manager,
+    });
     expect(mockRepository.save).toBeCalled();
     const userModel = mockRepository.save.mock.calls[0][0];
-    expect(userModel.userName).toEqual(dbRecord.userName);
     expect(userModel.role).toEqual(dbRecord.role);
   });
   test("should allow role to be changed by manager", async () => {
@@ -134,6 +173,8 @@ describe("UserService - Update User tests", () => {
       userId: 1,
       userName: "testuser",
       password: "x",
+      name: "new name",
+      email: "some@some.com",
       role: roles.user,
     };
     let mockRepository = {
@@ -145,7 +186,14 @@ describe("UserService - Update User tests", () => {
       role: roles.manager,
     });
     const password = "Hash@123";
-    await userService.update({ userId: 1, userName: "someothername", password, role: roles.manager });
+    await userService.update({
+      userId: 1,
+      name: "new name",
+      email: "some@some.com",
+      userName: "someothername",
+      password,
+      role: roles.manager,
+    });
     let userModel = mockRepository.save.mock.calls[0][0];
     expect(userModel.role).toEqual(roles.manager);
   });
@@ -154,6 +202,8 @@ describe("UserService - Update User tests", () => {
       userId: 1,
       userName: "testuser",
       password: "x",
+      name: "new name",
+      email: "some@some.com",
       role: roles.user,
     };
     let mockRepository = {
@@ -165,7 +215,14 @@ describe("UserService - Update User tests", () => {
       role: roles.admin,
     });
     const password = "Hash@123";
-    await userService.update({ userId: 1, userName: "someothername", password, role: roles.manager });
+    await userService.update({
+      userId: 1,
+      name: "new name",
+      email: "some@some.com",
+      userName: "someothername",
+      password,
+      role: roles.manager,
+    });
     let userModel = mockRepository.save.mock.calls[0][0];
     expect(userModel.role).toEqual(roles.manager);
   });
@@ -177,6 +234,8 @@ describe("UserService - Delete User tests", () => {
       userName: "testuser",
       password: "x",
       deleted: false,
+      name: "new name",
+      email: "some@some.com",
     };
     let mockRepository = {
       findOne: jest.fn((params) => dbRecord),
