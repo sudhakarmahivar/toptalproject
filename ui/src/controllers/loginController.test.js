@@ -36,7 +36,7 @@ describe("loginController tests", () => {
     let mockDispatch = jest.fn();
     await logout()(mockDispatch);
     expect(mockDispatch).toBeCalled();
-    const action = mockDispatch.mock.calls[0][0];
-    expect(action.type).toEqual(actionTypes.auth.loggedOut);
+    const loggedOutDispatch = mockDispatch.mock.calls.find((call) => call[0].type === actionTypes.auth.loggedOut);
+    expect(loggedOutDispatch).toBeTruthy();
   });
 });
