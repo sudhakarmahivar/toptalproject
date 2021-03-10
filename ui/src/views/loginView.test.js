@@ -28,7 +28,7 @@ describe("<LoginView />", () => {
     expect(wrapper.state().passwordError).toBe(true);
     expect(wrapper.state().userNameError).toBe(false);
   });
-  it("onSubmit fails when password missing", () => {
+  it("onSubmit fails when username missing", () => {
     const wrapper = shallow(<LoginView />);
     wrapper.setState({ userName: null, password: "somePassword" });
     wrapper.instance().onSubmit({

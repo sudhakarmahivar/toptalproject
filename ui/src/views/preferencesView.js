@@ -53,7 +53,9 @@ class PreferencesView extends React.Component {
     const { workingHoursPerDay } = this.state;
 
     const user = this.props.user;
+    console.log(user);
     user.workingHoursPerDay = workingHoursPerDay;
+    console.log(user);
     this.props.saveUser(user);
   };
   render() {

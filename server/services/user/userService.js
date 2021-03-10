@@ -2,7 +2,7 @@ const passwordValidator = require("password-validator");
 const bcrypt = require("bcryptjs");
 var jwt = require("jsonwebtoken");
 
-const { UserContext, errorMessages } = require("../../framework/framework");
+const { UserContext, errorMessages, logger } = require("../../framework/framework");
 const config = require("../../config");
 const { getRepository } = require("../../framework/datastore/dbConnectionManager");
 const UserModel = require("./model/userModel");
@@ -84,12 +84,16 @@ class UserService {
    * @param {UserModel} userModel
    */
   async create(userModel) {
-    const { userName } = userModel;
+    const { userName, email } = userModel;
     const { userId: loggedInUserId, role: loggedInUserRole } = this.userContext;
     console.log(this.userContext);
     //validate user name doesnt exist
     let dbRecord = await this.repository.findOne({ userName, deleted: false });
     if (dbRecord) throw new ValidationError(errorMessages.userNameAlreadyExists);
+
+    let emailDuplicate = await this.repository.findOne({ email, deleted: false });
+    console.log(emailDuplicate);
+    if (emailDuplicate) throw new ValidationError("Email already exists. Choose different one");
 
     userModel.createdBy = loggedInUserId;
 
@@ -118,13 +122,14 @@ class UserService {
    */
   async update(userModel) {
     const { userId } = userModel;
-    let dbRecord = this.repository.findOne({ userId, deleted: false });
+    let dbRecord = await this.repository.findOne({ userId, deleted: false });
     if (!dbRecord) throw new ResourceNotFoundError(errorMessages.userDoesntExist);
 
     const { userId: loggedInUserId, role: loggedInUserRole } = this.userContext;
 
     //Validate if you are authorized
     let allowed = false;
+    console.log(dbRecord, loggedInUserId);
     if (dbRecord.userId === loggedInUserId) {
       //user can't change his role
       allowed = true;

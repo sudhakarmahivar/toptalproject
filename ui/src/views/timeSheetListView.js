@@ -173,7 +173,8 @@ export class TimeSheetListView extends React.Component {
     const { fromDate, toDate, userId } = this.state; //current user selected stuff
     const { fromDate: resultFromDate, toDate: resultToDate, userId: resultUserId } = this.props;
     const name = (users.find((user) => user.userId === resultUserId) || {}).name;
-    const showSelectUser = utils.isManagerOrAdmin(getUserContext().role);
+    const showSelectUser = getUserContext().role === "a";
+    console.log(getUserContext(), utils.isManagerOrAdmin(getUserContext().role));
     const maxDate = new Date(),
       minDate = moment().subtract(1, "year").toDate();
     return (
